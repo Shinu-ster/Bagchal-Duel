@@ -1,8 +1,17 @@
-# main.py
-from game.game import Game  # Import Game class from game.py
-import pygame
+from menu.start_menu import main_menu, game_mode_menu, choose_side
 
-pygame.init()
+def main():
+    choice = main_menu()
+    
+    if choice == "play":
+        mode = game_mode_menu()
+        side = choose_side()
+        print(f"Starting game: Mode={mode}, Side={side}")
+        # Call your game logic here based on mode and side
+    
+    elif choice == "rules":
+        print("Displaying Rules...")
+        # Implement your rules screen here
 
-game = Game()
-game.run()  # Assuming game.py has a Game class with a run method
+if __name__ == "__main__":
+    main()

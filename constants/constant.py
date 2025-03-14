@@ -5,3 +5,4 @@ BG_COLOR = (139, 129, 119)
 GRID_COLOR = (212, 154, 128)
 TIGER_COLOR = (255, 100, 100)  
 GOAT_COLOR = (100, 255, 100)  
+FONT_PATH = "assets/fonts/BaghchalFont.ttf"
