@@ -6,3 +6,6 @@ GRID_COLOR = (212, 154, 128)
 TIGER_COLOR = (255, 100, 100)  
 GOAT_COLOR = (100, 255, 100)  
 FONT_PATH = "assets/fonts/BaghchalFont.ttf"
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+WIDTH, HEIGHT = 800,800
