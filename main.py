@@ -25,22 +25,26 @@ pygame.display.set_caption("Baghchal Duel")
 
 
 def main():
-    choice = main_menu(screen)
+
+    game = Game(screen)
+    game.run()
+
+    # choice = main_menu(screen)
     
-    if choice == "play":
-        mode = game_mode_menu(screen)
-        side = choose_side(screen)
-        if mode and side:
-            print(f"Starting game: Mode={mode}, Side={side}")
-            game = Game(screen)   
-            game.run()
+    # if choice == "play":
+    #     mode = game_mode_menu(screen)
+    #     side = choose_side(screen)
+    #     if mode and side:
+    #         print(f"Starting game: Mode={mode}, Side={side}")
+    #         game = Game(screen)   
+    #         game.run()
 
         
-        # Call your game logic here based on mode and side
+    #     # Call your game logic here based on mode and side
     
-    elif choice == "rules":
-        print("Displaying Rules...")
-        # Implement your rules screen here
+    # elif choice == "rules":
+    #     print("Displaying Rules...")
+    #     # Implement your rules screen here
 
 if __name__ == "__main__":
     main()

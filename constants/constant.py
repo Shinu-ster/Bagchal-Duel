@@ -8,4 +8,6 @@ GOAT_COLOR = (100, 255, 100)
 FONT_PATH = "assets/fonts/BaghchalFont.ttf"
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+BOARD_ROW = 4
+BOARD_COL = 4
 WIDTH, HEIGHT = 800,800
