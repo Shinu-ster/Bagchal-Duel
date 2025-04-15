@@ -3,21 +3,24 @@ from constants import constant
 from game.move import Move
 import numpy as np
 
+
 class Board:
     def __init__(self):
         self.grid_size = constant.BOARD_SIZE
         self.cell_size = constant.CELL_SIZE
         self.board = self.create_board()
-        self.start_x = 200 # position of first node x 
-        self.start_y = 200 # position of first node y
+        self.start_x = 200  # position of first node x
+        self.start_y = 200  # position of first node y
 
         # Load images for tiger and goat
         self.tiger_image = pygame.image.load('assets/image/tiger-icon.png')
         self.goat_image = pygame.image.load('assets/image/goat-icon.png')
 
         # Scale the images to be smaller
-        self.tiger_image = pygame.transform.scale(self.tiger_image, (constant.CELL_SIZE/2, constant.CELL_SIZE/2))
-        self.goat_image = pygame.transform.scale(self.goat_image, (constant.CELL_SIZE, constant.CELL_SIZE))
+        self.tiger_image = pygame.transform.scale(
+            self.tiger_image, (constant.CELL_SIZE/2, constant.CELL_SIZE/2))
+        self.goat_image = pygame.transform.scale(
+            self.goat_image, (constant.CELL_SIZE/2, constant.CELL_SIZE/2))
 
         # Define nodes (intersection points)
         self.nodes = self.calculate_nodes()
@@ -33,16 +36,16 @@ class Board:
         # Tigers = 1
         # Goat = 2
         board = np.array([
-            [1,0,0,0,1], # initialize tigers at spot 1
-            [0,0,0,0,0],
-            [0,0,2,0,0],
-            [0,0,0,0,0],
-            [1,0,0,0,1],
+            [1, 0, 0, 0, 1],  # initialize tigers at spot 1
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 1],
         ])
 
         # Place 4 tigers at the corners
         # board[0][0] = board[0][4] = board[4][0] = board[4][4] = "T"
-        print('Board; ',board)
+        print('Board; ', board)
 
         # All other spaces are empty initially (goats will be placed during gameplay)
         return board
@@ -53,8 +56,10 @@ class Board:
         cell_size = constant.CELL_SIZE
 
         # Calculate top-left position to center the board
-        offset_x = (pygame.display.get_surface().get_width() - 5 * cell_size) // 2
-        offset_y = (pygame.display.get_surface().get_height() - 5 * cell_size) // 2
+        offset_x = (pygame.display.get_surface(
+        ).get_width() - 5 * cell_size) // 2
+        offset_y = (pygame.display.get_surface(
+        ).get_height() - 5 * cell_size) // 2
 
         for i in range(5):  # 5 intersections in each direction
             for j in range(5):  # 5 intersections in each direction
@@ -64,7 +69,7 @@ class Board:
 
         return nodes
 
-    def draw_board(self, screen):
+    def draw_board(self, screen,selected_piece = None):
         """Draw the board grid and pieces on the screen."""
         screen.fill(constant.BG_COLOR)
         cell_size = constant.CELL_SIZE
@@ -80,20 +85,25 @@ class Board:
                 x, y = j * cell_size + offset_x, i * cell_size + offset_y
 
                 # Draw grid lines (rectangle borders)
-                pygame.draw.rect(screen, constant.GRID_COLOR, (x, y, cell_size, cell_size), line_width)
+                pygame.draw.rect(screen, constant.GRID_COLOR,
+                                 (x, y, cell_size, cell_size), line_width)
 
                 # Adjust diagonal lines to prevent overflow
                 offset = line_width // 2  # Reduce overflow by half of the line width
 
                 if (i + j) % 2 == 0:
                     pygame.draw.line(screen, constant.GRID_COLOR,
-                                    (x + offset, y + offset), (x + cell_size - offset, y + cell_size - offset), line_width + 2)
+                                     (x + offset, y + offset), (x + cell_size - offset, y + cell_size - offset), line_width + 2)
                 else:
                     pygame.draw.line(screen, constant.GRID_COLOR,
-                                    (x + cell_size - offset, y + offset), (x + offset, y + cell_size - offset), line_width + 2)
+                                     (x + cell_size - offset, y + offset), (x + offset, y + cell_size - offset), line_width + 2)
+                    
 
         # Draw the nodes (intersection points) with a color
         self.draw_nodes(screen)
+
+        if selected_piece:
+            self.highlight_selected(screen,selected_piece)
 
         # Draw the pieces at the nodes (intersections)
         self.place_pieces_on_nodes(screen)
@@ -106,10 +116,17 @@ class Board:
 
         for x, y in self.nodes:
             pygame.draw.circle(screen, node_color, (x, y), node_radius)
-            node_pos.append((x,y))
-        
+            node_pos.append((x, y))
+
         # print('Node Positions; ',node_pos)
         return node_pos
+    
+    def highlight_selected(self,screen,selected_node):
+        if selected_node:
+            row, col = self.single_node_to_index(selected_node)
+            x = self.start_x + col * self.cell_size
+            y = self.start_y + row * self.cell_size
+            pygame.draw.circle(screen,(255,215,0),(x,y),self.cell_size // 2.5)
 
     def place_pieces_on_nodes(self, screen):
         """Place the tiger and goat pieces on their respective nodes."""
@@ -120,12 +137,14 @@ class Board:
             # Draw the tiger icon at the corners (nodes)
             if self.board[row][col] == 1:
                 # Center the tiger icon on the node position
-                screen.blit(self.tiger_image, (x - self.tiger_image.get_width() // 2, y - self.tiger_image.get_height() // 2))
+                screen.blit(self.tiger_image, (x - self.tiger_image.get_width() //
+                            2, y - self.tiger_image.get_height() // 2))
 
             # If you add goats later, you can place them like this
             elif self.board[row][col] == 2:
                 # Center the goat icon on the node position
-                screen.blit(self.goat_image, (x - self.goat_image.get_width() // 2, y - self.goat_image.get_height() // 2))
+                screen.blit(self.goat_image, (x - self.goat_image.get_width() //
+                            2, y - self.goat_image.get_height() // 2))
 
     def update_board(self, move):
         """Update board after a move (for both player and AI)."""
@@ -135,7 +154,11 @@ class Board:
 
         # Move piece
         self.board[x2][y2] = self.board[x1][y1]
-        self.board[x1][y1] = "."  # Clear old position
+        self.board[x1][y1] = 0  # Clear old position
+
+    def update_goat(self, pos):
+        x1, y1 = pos
+        self.board[x1][y1] = 2
 
     def print_board(self):
         """Prints the board state in console (for debugging)."""
@@ -145,40 +168,133 @@ class Board:
 
     def return_nodes(self):
         return self.nodes
-    
-    def piece_exists_in_node(self,pos_x,pos_y,turn):
+
+    def piece_exists_in_node(self, pos_x, pos_y, turn):
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
 
         if 0 <= row < 5 and 0 <= col < 5:
-            print(f"Checking board[{row}][{col}]")
+            # print(f"Checking board[{row}][{col}]")
 
-            if turn == False and self.board[row][col] == 1:
-                print("Tiger Present at the node")
-                return True
-            elif turn == True and self.board[row][col] == 2:
-                print("Goat present at the node")
-                return True
-                
-
-            # if self.board[row][col] == 1:
-            #     print('Tiger present')
-            #     # if turn == False # Tigers turn
-                    
+            if turn == False:
+                if self.board[row][col] == 1:
+                    return True
+                elif self.board[row][col] == 2:
+                    return False
+            elif turn == True:
+                if self.board[row][col] == 0:
+                    return True
+            # if turn == False and self.board[row][col] == 1 or self.board[row][col] == 2:
+            #     print("Either Tiger or Goat is present at that node")
             #     return True
-            # elif self.board[row][col] == 2:
-            #     print('Goat present')
-            #     return False
-           
+            # elif turn == True and self.board[row][col] == 2 or self.board[row][col] == 1:
+            #     print("Either Goat or tiger is present at that node")
+            #     return True
+
         else:
             print("Clicked outside the board")
             return False
-        
-    def get_piece_at(self,pos_x,pos_y):
+
+    def node_to_index(self, from_pos, to_pos):
+        from_x, from_y = from_pos
+        to_x, to_y = to_pos
+        initialRow = (from_y - self.start_y) // self.cell_size
+        initialCol = (from_x - self.start_x) // self.cell_size
+
+        finalRow = (to_y - self.start_y) // self.cell_size
+        finalCol = (to_x - self.start_x) // self.cell_size
+
+        if 0 <= initialRow < 5 and 0 <= initialCol < 5:
+            print(f"Index at initial Pos [{initialRow}][{initialCol}]")
+
+        if 0 <= finalRow < 5 and 0 <= finalCol < 5:
+            print(f"Index at final Pos [{finalRow}][{finalCol}]")
+
+        return (initialRow, initialCol), (finalRow, finalCol)
+
+    def single_node_to_index(self, pos):
+        pos_x, pos_y = pos
+        row = (pos_y - self.start_y) // self.cell_size
+        col = (pos_x - self.start_y) // self.cell_size
+
+        if 0 <= row < 5 and 0 <= col < 5:
+            return (row, col)
+        return None
+
+    def get_piece_at(self, pos_x, pos_y):
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
         if 0 <= row < 5 and 0 <= col < 5:
             return self.board[row][col]  # 1 = Tiger, 2 = Goat, 0 = Empty
         return None
-        
-        
+
+    def get_surrounding_nodes(self, selected_node):
+        if selected_node not in self.nodes:
+            return "Node not found"
+
+        pos_x, pos_y = selected_node
+        print(f'posx {pos_x} posy {pos_y}')
+
+        index = self.nodes.index(selected_node)
+        num_columns = 5  # Since each row has (200, 300, 400, 500, 600)
+        num_rows = 5  # Since each column has (200, 300, 400, 500, 600)
+
+        row = index // num_columns
+        col = index % num_columns
+
+        # Define offsets based on node type
+        middle_offsets = [-5, -4, +1, +6, +5, +4, -1, -6]
+        middle_offsets_no_diagonal = [+1, -1, +5, -5]
+        top_left_corner_offsets = [+1, +5, +6]
+        top_right_corner_offsets = [-1, +4, +5]
+        bottom_left_corner_offsets = [+1, -4, -5]
+        bottom_right_corner_offsets = [-1, -5, -6]
+        # corner_offsets = [+1, +5, +6, -4, -5]
+        left_edge_offsets = [+5, +1, -5]
+        right_edge_offsets = [+5, -5, -1]
+
+        # Determine node type
+        if (row == 0 and col == 0) or (row == 0 and col == num_columns - 1) or (row == num_rows - 1 and col == 0) or (row == num_rows - 1 and col == num_columns - 1):
+            if index == 0:
+                offsets = top_left_corner_offsets
+            elif index == 4:
+                offsets = top_right_corner_offsets
+            elif index == 20:
+                offsets = bottom_left_corner_offsets
+            elif index == 24:
+                offsets = bottom_right_corner_offsets
+            # offsets = corner_offsets  # Corner nodes
+        elif col == 0:  # Left edge
+            offsets = left_edge_offsets
+        elif col == num_columns - 1:  # Right edge
+            offsets = right_edge_offsets
+        else:
+            if ((pos_x + pos_y) // 100) % 2 == 0:
+                offsets = middle_offsets  # Middle nodes
+            else:
+                offsets = middle_offsets_no_diagonal
+
+        # Find valid surrounding nodes
+        surrounding_nodes = []
+        for offset in offsets:
+            new_index = index + offset
+            if 0 <= new_index < len(self.nodes):  # Ensure index within bounds
+                surrounding_nodes.append(self.nodes[new_index])
+
+        return surrounding_nodes
+
+
+    def get_surrounding_node_piece(self, surrounding_nodes):
+        pieces = []
+
+        for node in surrounding_nodes:
+            index = self.single_node_to_index(node)  # convert (x, y) to (row, col)
+
+            if index:  # Ensure it's not None
+                row, col = index
+                piece = self.board[row][col]
+                pieces.append((index, piece))
+            else:
+                print(f"Invalid node position: {node} -> outside board")
+
+        return pieces
