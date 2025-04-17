@@ -29,7 +29,7 @@ class Board:
         self.is_tigers_turn = True
 
         # List of goats placed on the board
-        self.goats = []
+        self.goats = []  
 
     def create_board(self):
         """Initialize the board with tigers and empty spaces."""
@@ -184,6 +184,8 @@ class Board:
             elif turn == True:
                 if self.board[row][col] == 0:
                     return True
+                if self.board[row][col] == 1:
+                    return False
             # if turn == False and self.board[row][col] == 1 or self.board[row][col] == 2:
             #     print("Either Tiger or Goat is present at that node")
             #     return True
@@ -236,41 +238,45 @@ class Board:
         print(f'posx {pos_x} posy {pos_y}')
 
         index = self.nodes.index(selected_node)
-        num_columns = 5  # Since each row has (200, 300, 400, 500, 600)
-        num_rows = 5  # Since each column has (200, 300, 400, 500, 600)
+        num_columns = 5
+        num_rows = 5
 
         row = index // num_columns
         col = index % num_columns
 
-        # Define offsets based on node type
+        # Define offsets
         middle_offsets = [-5, -4, +1, +6, +5, +4, -1, -6]
         middle_offsets_no_diagonal = [+1, -1, +5, -5]
         top_left_corner_offsets = [+1, +5, +6]
         top_right_corner_offsets = [-1, +4, +5]
         bottom_left_corner_offsets = [+1, -4, -5]
         bottom_right_corner_offsets = [-1, -5, -6]
-        # corner_offsets = [+1, +5, +6, -4, -5]
         left_edge_offsets = [+5, +1, -5]
         right_edge_offsets = [+5, -5, -1]
+        top_edge_offsets = [+1, -1, +5]
+        bottom_edge_offsets = [+1, -1, -5]
 
-        # Determine node type
-        if (row == 0 and col == 0) or (row == 0 and col == num_columns - 1) or (row == num_rows - 1 and col == 0) or (row == num_rows - 1 and col == num_columns - 1):
-            if index == 0:
-                offsets = top_left_corner_offsets
-            elif index == 4:
-                offsets = top_right_corner_offsets
-            elif index == 20:
-                offsets = bottom_left_corner_offsets
-            elif index == 24:
-                offsets = bottom_right_corner_offsets
-            # offsets = corner_offsets  # Corner nodes
-        elif col == 0:  # Left edge
+        # Assign offsets based on location
+        if row == 0 and col == 0:
+            offsets = top_left_corner_offsets
+        elif row == 0 and col == num_columns - 1:
+            offsets = top_right_corner_offsets
+        elif row == num_rows - 1 and col == 0:
+            offsets = bottom_left_corner_offsets
+        elif row == num_rows - 1 and col == num_columns - 1:
+            offsets = bottom_right_corner_offsets
+        elif row == 0:
+            offsets = top_edge_offsets
+        elif row == num_rows - 1:
+            offsets = bottom_edge_offsets
+        elif col == 0:
             offsets = left_edge_offsets
-        elif col == num_columns - 1:  # Right edge
+        elif col == num_columns - 1:
             offsets = right_edge_offsets
         else:
+            # Middle node - choose diagonal or no-diagonal based on pattern
             if ((pos_x + pos_y) // 100) % 2 == 0:
-                offsets = middle_offsets  # Middle nodes
+                offsets = middle_offsets
             else:
                 offsets = middle_offsets_no_diagonal
 
@@ -278,7 +284,7 @@ class Board:
         surrounding_nodes = []
         for offset in offsets:
             new_index = index + offset
-            if 0 <= new_index < len(self.nodes):  # Ensure index within bounds
+            if 0 <= new_index < len(self.nodes):
                 surrounding_nodes.append(self.nodes[new_index])
 
         return surrounding_nodes
@@ -298,3 +304,6 @@ class Board:
                 print(f"Invalid node position: {node} -> outside board")
 
         return pieces
+    
+    def get_piece_at_index(self,x,y):
+        return self.board[x][y]
