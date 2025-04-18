@@ -29,7 +29,7 @@ class Board:
         self.is_tigers_turn = True
 
         # List of goats placed on the board
-        self.goats = []  
+        self.goats = []
 
     def create_board(self):
         """Initialize the board with tigers and empty spaces."""
@@ -49,6 +49,9 @@ class Board:
 
         # All other spaces are empty initially (goats will be placed during gameplay)
         return board
+    
+    def reset(self):
+        self.board = self.create_board()
 
     def calculate_nodes(self):
         """Calculate the coordinates of the intersection nodes."""
@@ -69,7 +72,7 @@ class Board:
 
         return nodes
 
-    def draw_board(self, screen,selected_piece = None):
+    def draw_board(self, screen, selected_piece=None):
         """Draw the board grid and pieces on the screen."""
         screen.fill(constant.BG_COLOR)
         cell_size = constant.CELL_SIZE
@@ -97,13 +100,12 @@ class Board:
                 else:
                     pygame.draw.line(screen, constant.GRID_COLOR,
                                      (x + cell_size - offset, y + offset), (x + offset, y + cell_size - offset), line_width + 2)
-                    
 
         # Draw the nodes (intersection points) with a color
         self.draw_nodes(screen)
 
         if selected_piece:
-            self.highlight_selected(screen,selected_piece)
+            self.highlight_selected(screen, selected_piece)
 
         # Draw the pieces at the nodes (intersections)
         self.place_pieces_on_nodes(screen)
@@ -120,13 +122,14 @@ class Board:
 
         # print('Node Positions; ',node_pos)
         return node_pos
-    
-    def highlight_selected(self,screen,selected_node):
+
+    def highlight_selected(self, screen, selected_node):
         if selected_node:
             row, col = self.single_node_to_index(selected_node)
             x = self.start_x + col * self.cell_size
             y = self.start_y + row * self.cell_size
-            pygame.draw.circle(screen,(255,215,0),(x,y),self.cell_size // 2.5)
+            pygame.draw.circle(screen, (255, 215, 0),
+                               (x, y), self.cell_size // 2.5)
 
     def place_pieces_on_nodes(self, screen):
         """Place the tiger and goat pieces on their respective nodes."""
@@ -219,7 +222,7 @@ class Board:
     def single_node_to_index(self, pos):
         pos_x, pos_y = pos
         row = (pos_y - self.start_y) // self.cell_size
-        col = (pos_x - self.start_y) // self.cell_size
+        col = (pos_x - self.start_x) // self.cell_size
 
         if 0 <= row < 5 and 0 <= col < 5:
             return (row, col)
@@ -291,12 +294,12 @@ class Board:
 
         return surrounding_nodes
 
-
     def get_surrounding_node_piece(self, surrounding_nodes):
         pieces = []
 
         for node in surrounding_nodes:
-            index = self.single_node_to_index(node)  # convert (x, y) to (row, col)
+            index = self.single_node_to_index(
+                node)  # convert (x, y) to (row, col)
 
             if index:  # Ensure it's not None
                 row, col = index
@@ -306,8 +309,43 @@ class Board:
                 print(f"Invalid node position: {node} -> outside board")
 
         return pieces
-    
-    def get_piece_at_index(self,x,y):
+
+    def get_all_tiger_positions(self):
+        print("Board Status:: ")
+        print(self.board)
+
+        tiger_positions = []
+
+        for row in range(self.board.shape[0]):
+            for col in range(self.board.shape[1]):
+                if self.board[row][col] == 1:  # 1 = Tiger
+                    # Convert grid coordinates to screen coordinates
+                    pos_x = self.start_x + col * self.cell_size
+                    pos_y = self.start_y + row * self.cell_size
+                    tiger_positions.append((pos_x, pos_y))
+
+        return tiger_positions
+
+
+    def is_valid_tiger_move(self, start, end):
+        print('Start pos: ', start)
+        start_idx = self.single_node_to_index(start)
+        end_idx = self.single_node_to_index(end)
+
+        if start_idx is None or end_idx is None:
+            return False
+
+        start_row, start_col = start_idx
+        end_row, end_col = end_idx
+
+        if self.board[start_row][start_col] != 1:
+            return False
+        if self.board[end_row][end_col] != 0:
+            return False
+
+        return True
+
+    def get_piece_at_index(self, x, y):
         return self.board[x][y]
 
     def is_goat_at_node(self, pos_x, pos_y):

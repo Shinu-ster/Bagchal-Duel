@@ -4,7 +4,8 @@ import numpy as np
 class Move:
     def __init__(self, board):
         self.board = board
-        self.goats_remaining = 5
+        self.goats_remaining = 20
+        self.eaten_goats = 0
        
 
     def is_valid_move(self, from_pos, to_pos, player_turn):
@@ -195,7 +196,11 @@ class Move:
                     print(f"Doubled jump destination index: {double_jump_index}")
                     expected_jump_pos = self.nodes[double_jump_index]
                     print(f"Expected jump pos: {expected_jump_pos}")
-                    return expected_jump_pos == jump_pos
+                    # return expected_jump_pos == jump_pos
+                    if expected_jump_pos == jump_pos:
+                        print('Tiger ate a goat!')
+                        self.eaten_goats += 1
+                        return True
                 else:
                     print("Jump destination is out of bounds.")
                     return False
@@ -203,6 +208,21 @@ class Move:
         print("No matching offset from current to goat.")
         return False
 
+    def check_game_over(self):
+        # Tigers win if they eat 5 goats
+        if self.eaten_goats >= 5:
+            return "Tiger"
 
-    
-    
+        tiger_positions = self.board.get_all_tiger_positions()
+        print('Tigers pos are : ',tiger_positions)
+
+        for tiger_pos in tiger_positions:
+            surrounding_nodes = self.board.get_surrounding_nodes(tiger_pos)
+            for neighbor in surrounding_nodes:
+                print(f'Tiger pos sending in function: {tiger_pos}')
+                print(f'Neighbour pos sending in function: {neighbor}')
+                if self.board.is_valid_tiger_move(tiger_pos, neighbor):
+                    return None  # A tiger can still move, game is not over
+
+        return "Goat"  # No tiger can move, goats win
+
