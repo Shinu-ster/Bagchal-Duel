@@ -13,12 +13,13 @@ class Game:
         self.nodes = self.board.return_nodes()
         self.selected_piece = None
         self.move = Move(self.board)
-        self.goats_remaining = self.move.goats_remaining
         self.turn = False
-        self.turn_font = pygame.font.Font('assets/fonts/BaghchalFont.ttf', 50)
-        # self.goats_remaining = 20
+        self.turn_font = pygame.font.Font('assets/fonts/WinkyRough-Black.ttf', 40)
 
-        # self.is_piece_at = self.board.piece_exists_in_node()
+    def display_info(self):
+        self.goat_info_rect = pygame.draw.rect(self.screen,(constant.BLACK),(100,100),2)
+
+
     def run(self):
         while self.running:
             for event in pygame.event.get():
@@ -140,25 +141,31 @@ class Game:
                             print(
                                 f"Surrounding nodes are as follows: {self.board.get_surrounding_nodes(clicked_node)}")
 
-                            if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                print("Piece Doesn't exist at that node")
+                            print(f'clicking goat {node_x}{node_y}')
+                            print(
+                                f'Piece exists at board for goat {self.board.piece_exists_in_node(node_x, node_y, self.turn)} ')
 
-                                if self.goats_remaining > 0:
-                                    if clicked_node is None:
-                                        break
-                                    if self.move.drop_goat(clicked_node):
-                                        self.selected_piece = None
-                                        self.turn = not self.turn
+                            if self.move.goats_remaining > 0:
+                                    if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                        # Valid empty node to drop goat
+                                        if self.move.drop_goat(clicked_node):
+                                            self.selected_piece = None
+                                            self.turn = not self.turn
                             else:
-                                isempty = self.board.piece_exists_in_node(node_x,node_y,self.turn)
-                                if isempty == False:
-                                    self.selected_piece = (node_x,node_y)
-
-                                if self.selected_piece:
-                                    if self.board.piece_exists_in_node(node_x,node_y,self.turn):
-                                        self.move.is_valid_move(self.selected_piece,(node_x,node_y),self.turn)
-                                        self.turn = not self.turn
-                                        
+                                    # Now we have to allow moving goats
+                                    print('Reached Else')
+                                    print(f'printing is goat at node {self.board.is_goat_at_node(node_x,node_y)}')
+                                    print(f'Selected Piece for goat setted to {self.selected_piece}')
+                                    if self.board.is_goat_at_node(node_x, node_y):
+                                        self.selected_piece = (node_x, node_y)
+                                        print(f'Selected Piece for goat is {self.selected_piece}') 
+                                    elif self.selected_piece:
+                                        print(f'Selected piece is availablee for goat')
+                                        # Try to move selected goat to this empty node
+                                        if self.board.piece_exists_in_node(node_x, node_y, self.turn):  # Is empty
+                                            if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
+                                                self.turn = not self.turn
+                                                self.selected_piece = None
 
 
                         else:
@@ -166,6 +173,56 @@ class Game:
 
             self.screen.fill(constant.BG_COLOR)
             self.board.draw_board(self.screen, self.selected_piece)
+
+            # 🟦 Draw Turn Indicator Box
+            # 🟦 Draw Turn Indicator Box
+            turn_box_rect = pygame.Rect(20, 20, 100, 120)  # (x, y, width, height)
+            pygame.draw.rect(self.screen, (255, 255, 255), turn_box_rect, border_radius=10)  # White background
+            pygame.draw.rect(self.screen, (0, 0, 0), turn_box_rect, 2, border_radius=10)      # Border
+
+            # 🏷️ Draw the "Turn" label
+            turn_label = self.turn_font.render("Turn", True, (0, 0, 0))
+            label_rect = turn_label.get_rect(center=(turn_box_rect.centerx, turn_box_rect.y + 25))
+            self.screen.blit(turn_label, label_rect)
+
+            # 🖼️ Load and scale icons only once
+            if not hasattr(self, 'tiger_icon'):
+                self.tiger_icon = pygame.image.load("assets/image/tiger-icon.png")
+                self.goat_icon = pygame.image.load("assets/image/goat-icon.png")
+                self.tiger_icon = pygame.transform.scale(self.tiger_icon, (64, 64))
+                self.goat_icon = pygame.transform.scale(self.goat_icon, (64, 64))
+
+            # ⬇️ Display the icon slightly below the label
+            icon = self.goat_icon if self.turn else self.tiger_icon
+            icon_rect = icon.get_rect(center=(turn_box_rect.centerx, label_rect.bottom + 25))
+            self.screen.blit(icon, icon_rect)
+
+
+                        # 🟦 Goats Remaining Box
+            screen_width = self.screen.get_width()
+            goat_box_rect = pygame.Rect(screen_width - 180, 20, 160, 80)  # Right side
+
+            pygame.draw.rect(self.screen, (255, 255, 255), goat_box_rect, border_radius=10)  # White background
+            pygame.draw.rect(self.screen, (0, 0, 0), goat_box_rect, 2, border_radius=10)      # Border
+
+            # 🏷️ Label: "Goats"
+            goats_label = self.turn_font.render("Goats", True, (0, 0, 0))
+            goats_label_rect = goats_label.get_rect(center=(goat_box_rect.centerx, goat_box_rect.y + 20))
+            self.screen.blit(goats_label, goats_label_rect)
+
+            # 🐐 Small Goat Icon (scaled smaller)
+            small_goat_icon = pygame.transform.scale(self.goat_icon, (40, 40))
+            icon_x = goat_box_rect.x + 20
+            icon_y = goats_label_rect.bottom + 10
+            self.screen.blit(small_goat_icon, (icon_x, icon_y - 23))
+
+            # 🔢 Remaining Goat Count
+            goat_count_text = self.turn_font.render(str(self.move.goats_remaining), True, (0, 0, 0))
+            count_rect = goat_count_text.get_rect(midleft=(icon_x + 55, icon_y))
+            self.screen.blit(goat_count_text, count_rect)
+
+
+
             pygame.display.flip()
 
         pygame.quit()

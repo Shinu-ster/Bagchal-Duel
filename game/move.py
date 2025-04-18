@@ -4,7 +4,7 @@ import numpy as np
 class Move:
     def __init__(self, board):
         self.board = board
-        self.goats_remaining = 20
+        self.goats_remaining = 5
        
 
     def is_valid_move(self, from_pos, to_pos, player_turn):
@@ -81,7 +81,7 @@ class Move:
             self.board.update_goat(index)
             self.goats_remaining -= 1
             if self.goats_remaining >=0:
-                print(f'Goats remaining are {self.goats_remaining}')
+                print(f'Goats remaining are (in move class){self.goats_remaining}')
                 return self.goats_remaining,True
             else:
                 return self.goats_remaining,False

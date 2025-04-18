@@ -186,6 +186,8 @@ class Board:
                     return True
                 if self.board[row][col] == 1:
                     return False
+                if self.board[row][col] == 2:
+                    return True
             # if turn == False and self.board[row][col] == 1 or self.board[row][col] == 2:
             #     print("Either Tiger or Goat is present at that node")
             #     return True
@@ -307,3 +309,8 @@ class Board:
     
     def get_piece_at_index(self,x,y):
         return self.board[x][y]
+
+    def is_goat_at_node(self, pos_x, pos_y):
+        row = (pos_y - self.start_y) // self.cell_size
+        col = (pos_x - self.start_x) // self.cell_size
+        return self.board[row][col] == 2
