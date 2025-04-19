@@ -1,12 +1,12 @@
 import numpy as np
 # from .board import Board
 
+
 class Move:
     def __init__(self, board):
         self.board = board
         self.goats_remaining = 20
         self.eaten_goats = 0
-       
 
     def is_valid_move(self, from_pos, to_pos, player_turn):
 
@@ -14,7 +14,7 @@ class Move:
         to_x, to_y = to_pos
 
         # print("move is valid from ", from_x, from_y, "to ",
-            #   to_x, to_y, "Player turn ", player_turn)
+        #   to_x, to_y, "Player turn ", player_turn)
         piece_at_destination = self.board.get_piece_at(to_x, to_y)
         if player_turn == False:  # Turn of Tiger
             if piece_at_destination is not None and piece_at_destination == 1 or piece_at_destination == 2:
@@ -23,7 +23,8 @@ class Move:
             else:
                 surrounding_node = self.board.get_surrounding_nodes(from_pos)
                 # print(f'Gettin piece of surroundin node: {surrounding_node}')
-                pieces = self.board.get_surrounding_node_piece(surrounding_node)
+                pieces = self.board.get_surrounding_node_piece(
+                    surrounding_node)
                 # for (row,col),piece in pieces:
                 #     print(f'pieces at ({row},{col}):{piece}')
 
@@ -73,7 +74,7 @@ class Move:
         to_x, to_y = to_pos
         if self.board.piece_exists_in_node(to_x, to_y, False):
             print('Piece exists ni thhe node')
-            return self.goats_remaining,False
+            return self.goats_remaining, False
 
         else:
             print("Pece doesn't' exsts in the board")
@@ -81,14 +82,16 @@ class Move:
             print('index of board is ', index)
             self.board.update_goat(index)
             self.goats_remaining -= 1
-            if self.goats_remaining >=0:
-                print(f'Goats remaining are (in move class){self.goats_remaining}')
-                return self.goats_remaining,True
+            if self.goats_remaining >= 0:
+                print(
+                    f'Goats remaining are (in move class){self.goats_remaining}')
+                return self.goats_remaining, True
             else:
-                return self.goats_remaining,False
-        
-    def is_valid_tiger_eat_move(self,selected_piece,target_node):
-        print(f'Checking tiger eat andcurrent pos {selected_piece},{target_node}')
+                return self.goats_remaining, False
+
+    def is_valid_tiger_eat_move(self, selected_piece, target_node):
+        print(
+            f'Checking tiger eat andcurrent pos {selected_piece},{target_node}')
         sx, sy = selected_piece
         tx, ty = target_node
 
@@ -99,19 +102,17 @@ class Move:
             mid_x = sx + dx // 2
             mid_y = sy + dy // 2
 
-
             # Checkin if its in bound
             if 0 <= mid_x < 5 and 0 <= mid_y < 5 and 0 <= tx < 5 and 0 <= ty < 5:
-                mid_piece = self.board.get_piece_at_index(mid_x,mid_y)
-                dest_piece = self.board.get_piece_at_index(tx,ty)
+                mid_piece = self.board.get_piece_at_index(mid_x, mid_y)
+                dest_piece = self.board.get_piece_at_index(tx, ty)
 
                 # Checking middle node is goat and destination is empty
                 if mid_piece == 2 and dest_piece == 0:
-                    return True, (mid_x,mid_y)
-                
-        
+                    return True, (mid_x, mid_y)
+
         return False, None
-    
+
     # def is_valid_tiger_jump(self,current_pos,goat_pos,jump_pos):
     #     print('------------------')
     #     print(f'Current pos {current_pos} goat position is {goat_pos} destination positition{jump_pos}')
@@ -124,7 +125,8 @@ class Move:
         self.nodes = self.boardIns.calculate_nodes()
 
         print('------------------')
-        print(f'Current pos: {current_pos}, Goat pos: {goat_pos}, Destination pos: {jump_pos}')
+        print(
+            f'Current pos: {current_pos}, Goat pos: {goat_pos}, Destination pos: {jump_pos}')
         print('------------------')
 
         print(f'Nodes are: {self.nodes}')
@@ -160,6 +162,10 @@ class Move:
         right_edge_offsets = [+5, -5, -1]
         top_edge_offsets = [+1, -1, +5]
         bottom_edge_offsets = [+1, -1, -5]
+        bottom_edge_with_diagonal_offsets = [+1, -1, -4, -5, -6]
+        left_edge_with_diagonal_offsets = [+1, +5, +6, -4, -5]
+        right_edge_with_diagonal_offsets = [-1, -5, -6, +4, +5]
+        top_edge_with_diagonal_offsets = [+1, -1, +4, +5, +6]
 
         # Assign offsets based on location
         if row == 0 and col == 0:
@@ -171,12 +177,20 @@ class Move:
         elif row == num_rows - 1 and col == num_columns - 1:
             offsets = bottom_right_corner_offsets
         elif row == 0:
+            if col == 2:
+                offsets = top_edge_with_diagonal_offsets
             offsets = top_edge_offsets
         elif row == num_rows - 1:
+            if col == 2:
+                offsets = bottom_edge_with_diagonal_offsets
             offsets = bottom_edge_offsets
         elif col == 0:
+            if row == 2:
+                offsets = left_edge_with_diagonal_offsets
             offsets = left_edge_offsets
         elif col == num_columns - 1:
+            if row == 2:
+                offsets = right_edge_with_diagonal_offsets
             offsets = right_edge_offsets
         else:
             # Middle node - choose diagonal or no-diagonal based on pattern
@@ -193,7 +207,8 @@ class Move:
                 print(f"Matched offset to goat: {offset}")
                 double_jump_index = current_index + 2 * offset
                 if 0 <= double_jump_index < len(self.nodes):
-                    print(f"Doubled jump destination index: {double_jump_index}")
+                    print(
+                        f"Doubled jump destination index: {double_jump_index}")
                     expected_jump_pos = self.nodes[double_jump_index]
                     print(f"Expected jump pos: {expected_jump_pos}")
                     # return expected_jump_pos == jump_pos
@@ -214,7 +229,7 @@ class Move:
             return "Tiger"
 
         tiger_positions = self.board.get_all_tiger_positions()
-        print('Tigers pos are : ',tiger_positions)
+        print('Tigers pos are : ', tiger_positions)
 
         for tiger_pos in tiger_positions:
             surrounding_nodes = self.board.get_surrounding_nodes(tiger_pos)
@@ -225,4 +240,3 @@ class Move:
                     return None  # A tiger can still move, game is not over
 
         return "Goat"  # No tiger can move, goats win
-
