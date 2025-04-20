@@ -49,7 +49,7 @@ class Board:
 
         # All other spaces are empty initially (goats will be placed during gameplay)
         return board
-    
+
     def reset(self):
         self.board = self.create_board()
 
@@ -260,29 +260,55 @@ class Board:
         right_edge_offsets = [+5, -5, -1]
         top_edge_offsets = [+1, -1, +5]
         bottom_edge_offsets = [+1, -1, -5]
+        bottom_edge_with_diagonal_offsets = [+1, -1, -4, -5, -6]
+        left_edge_with_diagonal_offsets = [+1, +5, +6, -4, -5]
+        right_edge_with_diagonal_offsets = [-1, -5, -6, +4, +5]
+        top_edge_with_diagonal_offsets = [+1, -1, +4, +5, +6]
 
         # Assign offsets based on location
         if row == 0 and col == 0:
             offsets = top_left_corner_offsets
+            print(f'offset was top left corner')
         elif row == 0 and col == num_columns - 1:
+            print(f'offset was top right corner')
             offsets = top_right_corner_offsets
         elif row == num_rows - 1 and col == 0:
+            print(f'offset was bottom left corner')
             offsets = bottom_left_corner_offsets
         elif row == num_rows - 1 and col == num_columns - 1:
+            print(f'offset was bottom right corner')
             offsets = bottom_right_corner_offsets
         elif row == 0:
-            offsets = top_edge_offsets
+            print(f'Printing col for top edge {col}')
+            if col == 2:
+                offsets = top_edge_with_diagonal_offsets
+            else: 
+                offsets = top_edge_offsets
         elif row == num_rows - 1:
-            offsets = bottom_edge_offsets
+            print(f'Printing col for bottom edge {col}')
+            if col == 2:
+                offsets = bottom_edge_with_diagonal_offsets
+            else: 
+                offsets = bottom_edge_offsets
         elif col == 0:
-            offsets = left_edge_offsets
+            print(f'Printing col for left edge {row}')
+            if row == 2:
+                offsets = left_edge_with_diagonal_offsets
+            else:
+                offsets = left_edge_offsets
         elif col == num_columns - 1:
-            offsets = right_edge_offsets
+            print(f'Printing col for right edge {row}')
+            if row == 2:
+                offsets = right_edge_with_diagonal_offsets
+            else: 
+                offsets = right_edge_offsets
         else:
             # Middle node - choose diagonal or no-diagonal based on pattern
             if ((pos_x + pos_y) // 100) % 2 == 0:
                 offsets = middle_offsets
+                print('Offset middle offset')
             else:
+                print('offset is middle with no diagonal')
                 offsets = middle_offsets_no_diagonal
 
         # Find valid surrounding nodes
@@ -326,7 +352,6 @@ class Board:
 
         return tiger_positions
 
-
     def is_valid_tiger_move(self, start, end):
         print('Start pos: ', start)
         start_idx = self.single_node_to_index(start)
@@ -352,3 +377,7 @@ class Board:
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
         return self.board[row][col] == 2
+
+    def goat_exists_in_node(node_x, node_y):
+        row = (node_y - self.start_y) // self.cell_size
+        col = (node_x - self.start_x) // self.cell_size

@@ -35,7 +35,7 @@ def main():
         # side = choose_side(screen)
         if mode == '1v1':
             print('Starting Game..')
-            game = Game(screen)
+            game = Game(screen,mode)
             game.run()
 
         # if mode and side:

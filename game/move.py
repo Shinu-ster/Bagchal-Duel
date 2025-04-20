@@ -48,10 +48,15 @@ class Move:
                 print(f'Remaining Goats are: {self.goats_remaining}')
 
             elif self.goats_remaining == 0:
-                initial_pos, final_pos = self.board.node_to_index(
-                    from_pos, to_pos)
-                self.move_piece(initial_pos, final_pos, player_turn)
-                return True
+                surrounding_node = self.board.get_surrounding_nodes(from_pos)
+
+                if to_pos in surrounding_node:
+                    initial_pos, final_pos = self.board.node_to_index(
+                        from_pos, to_pos)
+                    self.move_piece(initial_pos, final_pos, player_turn)
+                    return True
+                else:
+                    print('Invalid Goat move')
 
     def move_piece(self, from_pos, to_pos, player_turn):
         from_x, from_y = from_pos
@@ -59,7 +64,7 @@ class Move:
 
         if player_turn:
             print(
-                f'Moving Goat from pos x {from_x} y {from_y} to pos x {to_x} y {to_y}')
+                f'Moving Goat from pos x {from_x} y num_columns{from_y} to pos x {to_x} y {to_y}')
             self.board.update_board((from_pos, to_pos))
 
         else:
@@ -170,33 +175,55 @@ class Move:
         # Assign offsets based on location
         if row == 0 and col == 0:
             offsets = top_left_corner_offsets
+            print(f'offset was top left corner')
         elif row == 0 and col == num_columns - 1:
+            print(f'offset was top right corner')
             offsets = top_right_corner_offsets
         elif row == num_rows - 1 and col == 0:
+            print(f'offset was bottom left corner')
             offsets = bottom_left_corner_offsets
         elif row == num_rows - 1 and col == num_columns - 1:
+            print(f'offset was bottom right corner')
             offsets = bottom_right_corner_offsets
         elif row == 0:
+            print(f'Printing col for top edge {col}')
             if col == 2:
                 offsets = top_edge_with_diagonal_offsets
-            offsets = top_edge_offsets
+            else:
+                offsets = top_edge_offsets
+
+            print(f'offset is top edgeg')
+            
         elif row == num_rows - 1:
+            print(f'Printing col for bottom edge {col}')
             if col == 2:
                 offsets = bottom_edge_with_diagonal_offsets
-            offsets = bottom_edge_offsets
+            else: 
+                offsets = bottom_edge_offsets
+            
+            print(f'offset is bottom edgeg')
         elif col == 0:
+            print(f'Printing col for left edge {col}')
             if row == 2:
                 offsets = left_edge_with_diagonal_offsets
-            offsets = left_edge_offsets
+            else: 
+                offsets = left_edge_offsets
+
+            print(f'offset is left edgeg')
         elif col == num_columns - 1:
+            print(f'Printing col for right edge {col}')
             if row == 2:
                 offsets = right_edge_with_diagonal_offsets
-            offsets = right_edge_offsets
+            else:        
+             offsets = right_edge_offsets
         else:
             # Middle node - choose diagonal or no-diagonal based on pattern
             if ((pos_x + pos_y) // 100) % 2 == 0:  # Note: this still uses swapped values!
+
                 offsets = middle_offsets
+                print('Offset middle offset')
             else:
+                print('offset is middle with no diagonal')
                 offsets = middle_offsets_no_diagonal
 
         print(f"Possible offsets from current node: {offsets}")

@@ -6,14 +6,15 @@ import sys
 
 
 class Game:
-    def __init__(self, screen):
+    def __init__(self, screen,mode):
         self.screen = screen
         self.board = Board()
         self.running = True
         self.nodes = self.board.return_nodes()
         self.selected_piece = None
         self.move = Move(self.board)
-        self.turn = False
+        self.mode = mode
+        self.turn = True
         self.turn_font = pygame.font.Font(
             'assets/fonts/WinkyRough-Black.ttf', 40)
         game_font = pygame.font.Font(constant.FONT_PATH, 50)
@@ -38,159 +39,171 @@ class Game:
                     clicked_node = None
                     # print(f"Existing Nodes are : {self.nodes}")
 
+                    min_dist = float('inf')
+                    clicked_node = None
+
                     for node_x, node_y in self.nodes:
-                        if abs(node_x - mouse_x) < threshold and abs(node_y - mouse_y) < threshold:
+                        dist = ((node_x - mouse_x)**2 + (node_y - mouse_y)**2)**0.5
+                        if dist < threshold and dist < min_dist:
                             clicked_node = (node_x, node_y)
-                            index = self.nodes.index(clicked_node)
-                            print(f"Index of elements are as follows {index}")
-                            break  # Stop searching once we find the nearest node
+                            min_dist = dist
 
-                    if self.turn == False:  # Tigers turn
-                        if clicked_node:
-                            node_x, node_y = clicked_node
-                            print('-----Tigers Turn-----')
-                            print(f"Clocked on node: {clicked_node}")
-                            print(
-                                f"Surrounding nodes are as follows: {self.board.get_surrounding_nodes(clicked_node)}")
-                            surrounding_node = self.board.get_surrounding_nodes(
-                                clicked_node)
-                            print(
-                                f'Gettin piece of surroundin node: {surrounding_node}')
+                    if clicked_node:
+                        index = self.nodes.index(clicked_node)
+                        print(f"Index of clicked node: {index}")
 
-                            pieces = self.board.get_surrounding_node_piece(
-                                surrounding_node)
-                            print('Printing pieces in the node')
 
-                            for (row, col), piece in pieces:
-                                print(f'pieces at ({row},{col}):{piece}')
+                    if self.mode == "1v1":
 
-                        if self.selected_piece:
-                            # 💡 If user clicks on another valid tiger, re-select it instead of moving
-                            if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                print("Switched selection to another tiger")
-                                self.selected_piece = (node_x, node_y)
+                        if self.turn == False:  # Tigers turn
+                            if clicked_node:
+                                node_x, node_y = clicked_node
+                                print('-----Tigers Turn-----')
+                                print(f"Clocked on node: {clicked_node}")
+                                print(
+                                    f"Surrounding nodes are as follows: {self.board.get_surrounding_nodes(clicked_node)}")
+                                surrounding_node = self.board.get_surrounding_nodes(
+                                    clicked_node)
+                                print(
+                                    f'Gettin piece of surroundin node: {surrounding_node}')
 
-                            else:
-                                # result = self.move.is_valid_tiger_jump(self.selected_piece,(node_x,node_y))
-                                t1, t2 = self.selected_piece
-                                sx, sy = self.board.single_node_to_index(
-                                    self.selected_piece)
-                                print('----------Moving piece -----------')
-                                surrounding_nodes = self.board.get_surrounding_nodes(
-                                    self.selected_piece)
-                                is_valid = False
-                                for s_node in surrounding_nodes:
-                                    s_x, s_y = s_node
-                                    piece_val = self.board.get_piece_at(
-                                        s_x, s_y)
-                                    if piece_val == 1:
-                                        print(
-                                            f'🐐 Goat exists at pixel: ({s_x}, {s_y})')
-                                    elif piece_val == 2:
-                                        print(
-                                            f'🐅 Tiger exists at pixel: ({s_x}, {s_y})')
-                                        is_valid = self.move.is_valid_tiger_jump(
-                                            (t1, t2), (s_x, s_y), (node_x, node_y))
-                                        print(f'Tiger can jump {is_valid}')
-                                    else:
-                                        print(
-                                            f'⭕ Empty at pixel: ({s_x}, {s_y})')
+                                pieces = self.board.get_surrounding_node_piece(
+                                    surrounding_node)
+                                print('Printing pieces in the node')
 
-                                    if is_valid:
-                                        tx, ty = self.board.single_node_to_index(
-                                            (node_x, node_y))
-                                        is_eat_move, goat_to_romove = self.move.is_valid_tiger_eat_move(
-                                            (sx, sy), (tx, ty))
+                                for (row, col), piece in pieces:
+                                    print(f'pieces at ({row},{col}):{piece}')
 
-                                        if is_eat_move:
-                                            # sx, sy = self.selected_piece
-                                            gx, gy = goat_to_romove
-                                            # tx, ty = node_x, node_y
+                            if self.selected_piece:
+                                # 💡 If user clicks on another valid tiger, re-select it instead of moving
+                                if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                    print("Switched selection to another tiger")
+                                    self.selected_piece = (node_x, node_y)
 
+                                else:
+                                    # result = self.move.is_valid_tiger_jump(self.selected_piece,(node_x,node_y))
+                                    t1, t2 = self.selected_piece
+                                    sx, sy = self.board.single_node_to_index(
+                                        self.selected_piece)
+                                    print('----------Moving piece -----------')
+                                    surrounding_nodes = self.board.get_surrounding_nodes(
+                                        self.selected_piece)
+                                    is_valid = False
+                                    for s_node in surrounding_nodes:
+                                        s_x, s_y = s_node
+                                        piece_val = self.board.get_piece_at(
+                                            s_x, s_y)
+                                        if piece_val == 1:
                                             print(
-                                                f'Tiger at {self.selected_piece} eats goat at ({gx},{gy} and jumps to ({tx},{ty}))')
-                                            sx, sy = self.board.single_node_to_index(
-                                                self.selected_piece)
+                                                f'🐐 Goat exists at pixel: ({s_x}, {s_y})')
+                                        elif piece_val == 2:
+                                            print(
+                                                f'🐅 Tiger exists at pixel: ({s_x}, {s_y})')
+                                            is_valid = self.move.is_valid_tiger_jump(
+                                                (t1, t2), (s_x, s_y), (node_x, node_y))
+                                            print(f'Tiger can jump {is_valid}')
+                                        else:
+                                            print(
+                                                f'⭕ Empty at pixel: ({s_x}, {s_y})')
+
+                                        if is_valid:
                                             tx, ty = self.board.single_node_to_index(
                                                 (node_x, node_y))
+                                            is_eat_move, goat_to_romove = self.move.is_valid_tiger_eat_move(
+                                                (sx, sy), (tx, ty))
 
-                                            # self.board[gx][gy] = 0
-                                            # self.board[sx][sy] = 0
-                                            # self.board[tx][ty] = 1
+                                            if is_eat_move:
+                                                # sx, sy = self.selected_piece
+                                                gx, gy = goat_to_romove
+                                                # tx, ty = node_x, node_y
 
-                                            self.board.update_board(
-                                                ((gx, gy), (gx, gy)))
+                                                print(
+                                                    f'Tiger at {self.selected_piece} eats goat at ({gx},{gy} and jumps to ({tx},{ty}))')
+                                                sx, sy = self.board.single_node_to_index(
+                                                    self.selected_piece)
+                                                tx, ty = self.board.single_node_to_index(
+                                                    (node_x, node_y))
 
-                                            self.board.update_board(
-                                                ((sx, sy), (tx, ty)))
+                                                # self.board[gx][gy] = 0
+                                                # self.board[sx][sy] = 0
+                                                # self.board[tx][ty] = 1
 
-                                            self.turn = not self.turn
-                                            winner = self.move.check_game_over()
-                                            if winner:
-                                                self.running = False
-                                            self.selected_piece = None
+                                                self.board.update_board(
+                                                    ((gx, gy), (gx, gy)))
 
-                            if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
-                                print('-----------Runningg is valid move--------')
-                                self.turn = not self.turn
-                                winner = self.move.check_game_over()
-                                if winner:
-                                    self.running = False
-                                print("Turn Changed. Now it's goat's turn")
-                                self.selected_piece = None
+                                                self.board.update_board(
+                                                    ((sx, sy), (tx, ty)))
 
-                        else:
-                            if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                self.selected_piece = (node_x, node_y)
+                                                self.turn = not self.turn
+                                                winner = self.move.check_game_over()
+                                                if winner:
+                                                    self.running = False
+                                                self.selected_piece = None
 
-                    elif self.turn == True:  # Goats Turn
+                                if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
+                                    print('-----------Runningg is valid move--------')
+                                    self.turn = not self.turn
+                                    winner = self.move.check_game_over()
+                                    if winner:
+                                        self.running = False
+                                    print("Turn Changed. Now it's goat's turn")
+                                    self.selected_piece = None
 
-                        if clicked_node:
-                            node_x, node_y = clicked_node
-                            print('-----Goats Turn-----')
-                            print(f"Clocked on node: {clicked_node}")
-                            print(
-                                f"Surrounding nodes are as follows: {self.board.get_surrounding_nodes(clicked_node)}")
-
-                            print(f'clicking goat {node_x}{node_y}')
-                            print(
-                                f'Piece exists at board for goat {self.board.piece_exists_in_node(node_x, node_y, self.turn)} ')
-
-                            if self.move.goats_remaining > 0:
-                                if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                    # Valid empty node to drop goat
-                                    if self.move.drop_goat(clicked_node):
-                                        self.selected_piece = None
-                                        self.turn = not self.turn
-                                        winner = self.move.check_game_over()
-                                        if winner:
-                                            self.running = False
                             else:
-                                # Now we have to allow moving goats
-                                print('Reached Else')
-                                print(
-                                    f'printing is goat at node {self.board.is_goat_at_node(node_x, node_y)}')
-                                print(
-                                    f'Selected Piece for goat setted to {self.selected_piece}')
-                                if self.board.is_goat_at_node(node_x, node_y):
+                                if self.board.piece_exists_in_node(node_x, node_y, self.turn):
                                     self.selected_piece = (node_x, node_y)
-                                    print(
-                                        f'Selected Piece for goat is {self.selected_piece}')
-                                elif self.selected_piece:
-                                    print(
-                                        f'Selected piece is availablee for goat')
-                                    # Try to move selected goat to this empty node
-                                    # Is empty
-                                    if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                        if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
-                                            self.turn = not self.turn
-                                            winner = self.move.check_game_over()
-                                            if winner:
-                                                self.running = False
-                                            self.selected_piece = None
 
-                        else:
-                            print("Not valid node")
+                        elif self.turn == True:  # Goats Turn
+
+                            if clicked_node:
+                                node_x, node_y = clicked_node
+                                print('-----Goats Turn-----')
+                                print(f"Clocked on node: {clicked_node}")
+                                print(
+                                    f"Surrounding nodes are as follows: {self.board.get_surrounding_nodes(clicked_node)}")
+
+                                print(f'clicking goat {node_x}{node_y}')
+                                print(
+                                    f'Piece exists at board for goat {self.board.piece_exists_in_node(node_x, node_y, self.turn)} ')
+
+                                if self.move.goats_remaining > 0:
+                                    if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                        if not self.board.is_goat_at_node(node_x,node_y):
+                                            # Valid empty node to drop goat
+                                            if self.move.drop_goat(clicked_node):
+                                                self.selected_piece = None
+                                                self.turn = not self.turn
+                                                winner = self.move.check_game_over()
+                                                if winner:
+                                                    self.running = False
+                                    else:
+                                        print('Piece exists in the board click another node')
+                                else:
+                                    # Now we have to allow moving goats
+                                    print('Reached Else')
+                                    print(
+                                        f'printing is goat at node {self.board.is_goat_at_node(node_x, node_y)}')
+                                    print(
+                                        f'Selected Piece for goat setted to {self.selected_piece}')
+                                    if self.board.is_goat_at_node(node_x, node_y):
+                                        self.selected_piece = (node_x, node_y)
+                                        print(
+                                            f'Selected Piece for goat is {self.selected_piece}')
+                                    elif self.selected_piece:
+                                        print(
+                                            f'Selected piece is availablee for goat')
+                                        # Try to move selected goat to this empty node
+                                        # Is empty
+                                        if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                            if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
+                                                self.turn = not self.turn
+                                                winner = self.move.check_game_over()
+                                                if winner:
+                                                    self.running = False
+                                                self.selected_piece = None
+
+                            else:
+                                print("Not valid node")
 
             self.screen.fill(constant.BG_COLOR)
             self.board.draw_board(self.screen, self.selected_piece)
@@ -277,7 +290,7 @@ class Game:
                 main_menu_text = self.turn_font.render(
                     'Press Space to go to main menu', True, (0, 0, 0)
                 )
-                main_menu_rect = main_menu_text.get_rect(center=(400, 700))
+                main_menu_rect = main_menu_text.get_rect(center=(400, 600))
                 self.screen.blit(main_menu_text, main_menu_rect)
 
                 pygame.display.flip()  # Make sure the final screen is shown
@@ -296,9 +309,11 @@ class Game:
                                 self.go_to_main_menu()
                                 waiting_for_input = False
                             elif event.key == pygame.K_r:
-                                self.restart_game()
+                                # self.restart_game()
+                                # waiting_for_input = False
+                                new_game = Game(self.screen, self.mode)  # or however you construct Game
+                                new_game.run()
                                 waiting_for_input = False
-
         pygame.quit()
         sys.exit()
 
@@ -318,7 +333,7 @@ class Game:
 
             if mode == "1v1":
                 print('Starging Game...')
-                game = Game(self.screen)
+                game = Game(self.screen,mode)
                 game.run()
 
             if mode == "ai":
@@ -332,10 +347,11 @@ class Game:
     def restart_game(self):
         print("Restarting the game")
         self.board.reset()
-        self.turn = False
+        self.turn = True
         self.winner = None
+        print('Winner set to none')
         self.move.eaten_goats = 0
         self.move.goats_remaining = 20
-        self.running = True
+        self.run()
 
         pygame.display.flip()
