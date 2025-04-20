@@ -3,10 +3,11 @@ from .board import Board
 from constants import constant
 from .move import Move
 import sys
-
+# from ai.ai_engine import *
+from ai.ai_engine import get_best_ai_move
 
 class Game:
-    def __init__(self, screen,mode):
+    def __init__(self, screen,mode,player_side = None):
         self.screen = screen
         self.board = Board()
         self.running = True
@@ -14,7 +15,9 @@ class Game:
         self.selected_piece = None
         self.move = Move(self.board)
         self.mode = mode
-        self.turn = True
+        self.turn = True 
+        self.player_side = player_side
+
         self.turn_font = pygame.font.Font(
             'assets/fonts/WinkyRough-Black.ttf', 40)
         game_font = pygame.font.Font(constant.FONT_PATH, 50)
@@ -205,6 +208,18 @@ class Game:
                             else:
                                 print("Not valid node")
 
+                    else:
+                        print('Side Ai')
+                        print(f'Mode {self.mode}')
+                        print(f'Player side is {self.player_side}')
+                        if self.player_side == 'tiger':
+                            print(self.board.get_all_pieces(True))
+
+                        else:
+                            print(self.board.get_all_pieces(False))
+
+
+
             self.screen.fill(constant.BG_COLOR)
             self.board.draw_board(self.screen, self.selected_piece)
 
@@ -298,6 +313,40 @@ class Game:
             eaten_count_rect = eaten_count_text.get_rect(
                 midleft=(icon_x + 55, icon_y + 10))
             self.screen.blit(eaten_count_text, eaten_count_rect)
+
+
+            # 🟦 Trapped Tigers Box - Below Eaten Box
+            trapped_box_width = 270
+            trapped_box_height = 100
+            trapped_box_rect = pygame.Rect(
+                (screen_width - trapped_box_width) - 20 , eaten_box_rect.bottom + 550,
+                trapped_box_width, trapped_box_height
+            )
+
+            pygame.draw.rect(self.screen, (255, 255, 255),
+                            trapped_box_rect, border_radius=10)
+            pygame.draw.rect(self.screen, (0, 0, 0), trapped_box_rect,
+                            2, border_radius=10)
+
+            # 🏷️ Label: "Trapped Tigers"
+            trapped_label = self.turn_font.render("Trapped Tigers", True, (0, 0, 0))
+            trapped_label_rect = trapped_label.get_rect(
+                center=(trapped_box_rect.centerx, trapped_box_rect.y + 20))
+            self.screen.blit(trapped_label, trapped_label_rect)
+
+            # 🐯 Small Tiger Icon (scaled)
+            small_tiger_icon = pygame.transform.scale(self.tiger_icon, (40, 40))
+            tiger_icon_x = trapped_box_rect.x + 20
+            tiger_icon_y = trapped_label_rect.bottom + 10
+            self.screen.blit(small_tiger_icon, (tiger_icon_x, tiger_icon_y - 10))
+
+            # 🔢 Trapped Tiger Count
+            trapped_count = self.move.get_trapped_tigers_count()
+            trapped_count_text = self.turn_font.render(str(trapped_count), True, (0, 0, 0))
+            trapped_count_rect = trapped_count_text.get_rect(
+                midleft=(tiger_icon_x + 55, tiger_icon_y))
+            self.screen.blit(trapped_count_text, trapped_count_rect)
+
 
 
             pygame.display.flip()

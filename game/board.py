@@ -76,11 +76,19 @@ class Board:
         """Draw the board grid and pieces on the screen."""
         screen.fill(constant.BG_COLOR)
         cell_size = constant.CELL_SIZE
-        line_width = 2  # Thickness of the diagonal lines
+        line_width = 4  # Thickness of the diagonal lines
+
+
 
         # Calculate top-left position to center the board
         offset_x = (screen.get_width() - constant.BOARD_ROW * cell_size) // 2
         offset_y = (screen.get_height() - constant.BOARD_COL * cell_size) // 2
+        # Draw thick outer border around the whole board
+        board_width = constant.BOARD_COL * cell_size 
+        board_height = constant.BOARD_ROW * cell_size 
+        outer_rect = pygame.Rect(offset_x, offset_y, board_width, board_height)
+
+        pygame.draw.rect(screen, constant.GRID_COLOR, outer_rect, line_width + 2)
 
         # Draw grid
         for i in range(constant.BOARD_ROW):  # Corrected to draw for a 5x5 grid
@@ -89,7 +97,7 @@ class Board:
 
                 # Draw grid lines (rectangle borders)
                 pygame.draw.rect(screen, constant.GRID_COLOR,
-                                 (x, y, cell_size, cell_size), line_width)
+                                 (x, y, cell_size, cell_size), line_width  )
 
                 # Adjust diagonal lines to prevent overflow
                 offset = line_width // 2  # Reduce overflow by half of the line width
@@ -240,7 +248,7 @@ class Board:
             return "Node not found"
 
         pos_x, pos_y = selected_node
-        print(f'posx {pos_x} posy {pos_y}')
+        # print(f'posx {pos_x} posy {pos_y}')
 
         index = self.nodes.index(selected_node)
         num_columns = 5
@@ -268,36 +276,36 @@ class Board:
         # Assign offsets based on location
         if row == 0 and col == 0:
             offsets = top_left_corner_offsets
-            print(f'offset was top left corner')
+            # print(f'offset was top left corner')
         elif row == 0 and col == num_columns - 1:
-            print(f'offset was top right corner')
+            # print(f'offset was top right corner')
             offsets = top_right_corner_offsets
         elif row == num_rows - 1 and col == 0:
-            print(f'offset was bottom left corner')
+            # print(f'offset was bottom left corner')
             offsets = bottom_left_corner_offsets
         elif row == num_rows - 1 and col == num_columns - 1:
-            print(f'offset was bottom right corner')
+            # print(f'offset was bottom right corner')
             offsets = bottom_right_corner_offsets
         elif row == 0:
-            print(f'Printing col for top edge {col}')
+            # print(f'Printing col for top edge {col}')
             if col == 2:
                 offsets = top_edge_with_diagonal_offsets
             else: 
                 offsets = top_edge_offsets
         elif row == num_rows - 1:
-            print(f'Printing col for bottom edge {col}')
+            # print(f'Printing col for bottom edge {col}')
             if col == 2:
                 offsets = bottom_edge_with_diagonal_offsets
             else: 
                 offsets = bottom_edge_offsets
         elif col == 0:
-            print(f'Printing col for left edge {row}')
+            # print(f'Printing col for left edge {row}')
             if row == 2:
                 offsets = left_edge_with_diagonal_offsets
             else:
                 offsets = left_edge_offsets
         elif col == num_columns - 1:
-            print(f'Printing col for right edge {row}')
+            # print(f'Printing col for right edge {row}')
             if row == 2:
                 offsets = right_edge_with_diagonal_offsets
             else: 
@@ -306,9 +314,9 @@ class Board:
             # Middle node - choose diagonal or no-diagonal based on pattern
             if ((pos_x + pos_y) // 100) % 2 == 0:
                 offsets = middle_offsets
-                print('Offset middle offset')
+                # print('Offset middle offset')
             else:
-                print('offset is middle with no diagonal')
+                # print('offset is middle with no diagonal')
                 offsets = middle_offsets_no_diagonal
 
         # Find valid surrounding nodes
@@ -337,8 +345,6 @@ class Board:
         return pieces
 
     def get_all_tiger_positions(self):
-        print("Board Status:: ")
-        print(self.board)
 
         tiger_positions = []
 
@@ -353,7 +359,7 @@ class Board:
         return tiger_positions
 
     def is_valid_tiger_move(self, start, end):
-        print('Start pos: ', start)
+        # print('Start pos: ', start)
         start_idx = self.single_node_to_index(start)
         end_idx = self.single_node_to_index(end)
 
@@ -377,7 +383,15 @@ class Board:
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
         return self.board[row][col] == 2
+    
+    def get_all_pieces(self,player_turn):
 
-    def goat_exists_in_node(node_x, node_y):
-        row = (node_y - self.start_y) // self.cell_size
-        col = (node_x - self.start_x) // self.cell_size
+        piece_value = 1 if player_turn else 2
+        positions = []
+
+        for row in range(self.board.shape[0]):
+            for col in range(self.board.shape[1]):
+                if self.board[row, col] == piece_value:
+                    positions.append((row, col))
+
+        return positions

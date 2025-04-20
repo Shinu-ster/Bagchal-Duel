@@ -44,6 +44,7 @@ def main():
         #     game.run()
         if mode == "ai":
             side = choose_side(screen)
+            print('Side ',side)
             game = Game(screen,mode = "ai",player_side = side)
             game.run()
 

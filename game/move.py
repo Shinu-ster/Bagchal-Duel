@@ -103,18 +103,19 @@ class Move:
         dx = tx - sx
         dy = ty - sy
 
-        if abs(dx) == 2 or abs(dy) == 2:
-            mid_x = sx + dx // 2
-            mid_y = sy + dy // 2
+        if not self.board.get_piece_at(tx,ty):
+            if abs(dx) == 2 or abs(dy) == 2:
+                mid_x = sx + dx // 2
+                mid_y = sy + dy // 2
 
-            # Checkin if its in bound
-            if 0 <= mid_x < 5 and 0 <= mid_y < 5 and 0 <= tx < 5 and 0 <= ty < 5:
-                mid_piece = self.board.get_piece_at_index(mid_x, mid_y)
-                dest_piece = self.board.get_piece_at_index(tx, ty)
+                # Checkin if its in bound
+                if 0 <= mid_x < 5 and 0 <= mid_y < 5 and 0 <= tx < 5 and 0 <= ty < 5:
+                    mid_piece = self.board.get_piece_at_index(mid_x, mid_y)
+                    dest_piece = self.board.get_piece_at_index(tx, ty)
 
-                # Checking middle node is goat and destination is empty
-                if mid_piece == 2 and dest_piece == 0:
-                    return True, (mid_x, mid_y)
+                    # Checking middle node is goat and destination is empty
+                    if mid_piece == 2 and dest_piece == 0:
+                        return True, (mid_x, mid_y)
 
         return False, None
 
@@ -175,43 +176,43 @@ class Move:
         # Assign offsets based on location
         if row == 0 and col == 0:
             offsets = top_left_corner_offsets
-            print(f'offset was top left corner')
+            # print(f'offset was top left corner')
         elif row == 0 and col == num_columns - 1:
-            print(f'offset was top right corner')
+            # print(f'offset was top right corner')
             offsets = top_right_corner_offsets
         elif row == num_rows - 1 and col == 0:
-            print(f'offset was bottom left corner')
+            # print(f'offset was bottom left corner')
             offsets = bottom_left_corner_offsets
         elif row == num_rows - 1 and col == num_columns - 1:
-            print(f'offset was bottom right corner')
+            # print(f'offset was bottom right corner')
             offsets = bottom_right_corner_offsets
         elif row == 0:
-            print(f'Printing col for top edge {col}')
+            # print(f'Printing col for top edge {col}')
             if col == 2:
                 offsets = top_edge_with_diagonal_offsets
             else:
                 offsets = top_edge_offsets
 
-            print(f'offset is top edgeg')
+            # print(f'offset is top edgeg')
             
         elif row == num_rows - 1:
-            print(f'Printing col for bottom edge {col}')
+            # print(f'Printing col for bottom edge {col}')
             if col == 2:
                 offsets = bottom_edge_with_diagonal_offsets
             else: 
                 offsets = bottom_edge_offsets
             
-            print(f'offset is bottom edgeg')
+            # print(f'offset is bottom edgeg')
         elif col == 0:
-            print(f'Printing col for left edge {col}')
+            # print(f'Printing col for left edge {col}')
             if row == 2:
                 offsets = left_edge_with_diagonal_offsets
             else: 
                 offsets = left_edge_offsets
 
-            print(f'offset is left edgeg')
+            # print(f'offset is left edgeg')
         elif col == num_columns - 1:
-            print(f'Printing col for right edge {col}')
+            # print(f'Printing col for right edge {col}')
             if row == 2:
                 offsets = right_edge_with_diagonal_offsets
             else:        
@@ -221,12 +222,12 @@ class Move:
             if ((pos_x + pos_y) // 100) % 2 == 0:  # Note: this still uses swapped values!
 
                 offsets = middle_offsets
-                print('Offset middle offset')
+                # print('Offset middle offset')
             else:
-                print('offset is middle with no diagonal')
+                # print('offset is middle with no diagonal')
                 offsets = middle_offsets_no_diagonal
 
-        print(f"Possible offsets from current node: {offsets}")
+        # print(f"Possible offsets from current node: {offsets}")
 
         for offset in offsets:
             neighbor_index = current_index + offset
@@ -241,7 +242,7 @@ class Move:
                     # return expected_jump_pos == jump_pos
                     if expected_jump_pos == jump_pos:
                         print('Tiger ate a goat!')
-                        self.eaten_goats += 1
+                        # self.eaten_goats += 1
                         return True
                 else:
                     print("Jump destination is out of bounds.")
@@ -267,3 +268,17 @@ class Move:
                     return None  # A tiger can still move, game is not over
 
         return "Goat"  # No tiger can move, goats win
+
+    def get_trapped_tigers_count(self):
+        tiger_positions = self.board.get_all_tiger_positions()
+        trapped = 0
+        for tiger_pos in tiger_positions:
+            movable = False
+            neighbors = self.board.get_surrounding_nodes(tiger_pos)
+            for neighbor in neighbors:
+                if self.board.is_valid_tiger_move(tiger_pos, neighbor):
+                    movable = True
+                    break
+            if not movable:
+                trapped += 1
+        return trapped
