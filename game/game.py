@@ -242,8 +242,8 @@ class Game:
 
             # 🟦 Goats Remaining Box
             screen_width = self.screen.get_width()
-            goat_box_rect = pygame.Rect(
-                screen_width - 180, 20, 160, 80)  # Right side
+            goat_box_rect = pygame.Rect(screen_width - 220, 25, 210, 80)
+
 
             pygame.draw.rect(self.screen, (255, 255, 255),
                              goat_box_rect, border_radius=10)  # White background
@@ -251,9 +251,9 @@ class Game:
                              2, border_radius=10)      # Border
 
             # 🏷️ Label: "Goats"
-            goats_label = self.turn_font.render("Goats", True, (0, 0, 0))
+            goats_label = self.turn_font.render("Remaining", True, (0, 0, 0))
             goats_label_rect = goats_label.get_rect(
-                center=(goat_box_rect.centerx, goat_box_rect.y + 20))
+                center=(goat_box_rect.centerx+10, goat_box_rect.y + 20))
             self.screen.blit(goats_label, goats_label_rect)
 
             # 🐐 Small Goat Icon (scaled smaller)
@@ -268,6 +268,37 @@ class Game:
             count_rect = goat_count_text.get_rect(
                 midleft=(icon_x + 55, icon_y))
             self.screen.blit(goat_count_text, count_rect)
+            # 🟦 Goats Eaten Box - Top Center
+            screen_width = self.screen.get_width()
+            eaten_box_width = 160
+            eaten_box_height = 100
+            eaten_box_rect = pygame.Rect(
+                (screen_width - eaten_box_width) // 2, 20, eaten_box_width, eaten_box_height)
+
+            pygame.draw.rect(self.screen, (255, 255, 255),
+                            eaten_box_rect, border_radius=10)  # White background
+            pygame.draw.rect(self.screen, (0, 0, 0), eaten_box_rect,
+                            2, border_radius=10)      # Border
+
+            # 🏷️ Label: "Eaten"
+            eaten_label = self.turn_font.render("Eaten", True, (0, 0, 0))
+            eaten_label_rect = eaten_label.get_rect(
+                center=(eaten_box_rect.centerx, eaten_box_rect.y + 20))
+            self.screen.blit(eaten_label, eaten_label_rect)
+
+            # 🐐 Small Goat Icon (reuse scaled one from earlier)
+            small_goat_icon = pygame.transform.scale(self.goat_icon, (40, 40))  # Only do this once
+            icon_x = eaten_box_rect.x + 20
+            icon_y = eaten_label_rect.bottom + 5
+            self.screen.blit(small_goat_icon, (icon_x, icon_y - 5))
+
+            # 🔢 Eaten Goat Count
+            eaten_count_text = self.turn_font.render(
+                str(self.move.eaten_goats), True, (0, 0, 0))
+            eaten_count_rect = eaten_count_text.get_rect(
+                midleft=(icon_x + 55, icon_y + 10))
+            self.screen.blit(eaten_count_text, eaten_count_rect)
+
 
             pygame.display.flip()
 
@@ -352,6 +383,5 @@ class Game:
         print('Winner set to none')
         self.move.eaten_goats = 0
         self.move.goats_remaining = 20
-        self.run()
 
         pygame.display.flip()
