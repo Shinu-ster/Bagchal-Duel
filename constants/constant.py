@@ -1,13 +1,17 @@
 
 BOARD_SIZE = (5, 5)
-CELL_SIZE = 100  
+CELL_SIZE = 100
 BG_COLOR = (139, 129, 119)
 GRID_COLOR = (212, 154, 128)
-TIGER_COLOR = (255, 100, 100)  
-GOAT_COLOR = (100, 255, 100)  
-FONT_PATH = "assets/fonts/BaghchalFont.ttf"
+TIGER_COLOR = (255, 100, 100)
+GOAT_COLOR = (100, 255, 100)
+# FONT_PATH = "assets/fonts/BaghchalFont.ttf"
+FONT_PATH = "assets/fonts/PixelGame-R9AZe.otf"
 WHITE = (255, 255, 255)
+# MAIN_MENU_BG = (239, 150, 81) # Bright orange
+MAIN_MENU_BG = (56, 142, 60)
+MAIN_MENU_TEXT_COLOR = (188, 191, 176)
 BLACK = (0, 0, 0)
 BOARD_ROW = 4
 BOARD_COL = 4
-WIDTH, HEIGHT = 800,800
+WIDTH, HEIGHT = 800, 800

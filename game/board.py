@@ -2,6 +2,8 @@ import pygame
 from constants import constant
 from game.move import Move
 import numpy as np
+import copy
+
 
 
 class Board:
@@ -13,8 +15,8 @@ class Board:
         self.start_y = 200  # position of first node y
 
         # Load images for tiger and goat
-        self.tiger_image = pygame.image.load('assets/image/tiger-icon.png')
-        self.goat_image = pygame.image.load('assets/image/goat-icon.png')
+        self.tiger_image = pygame.image.load('assets/image/tigericon2.png')
+        self.goat_image = pygame.image.load('assets/image/goaticon3.png')
 
         # Scale the images to be smaller
         self.tiger_image = pygame.transform.scale(
@@ -49,6 +51,9 @@ class Board:
 
         # All other spaces are empty initially (goats will be placed during gameplay)
         return board
+    
+    def __str__(self):
+        return str(self.board)
 
     def reset(self):
         self.board = self.create_board()
@@ -227,14 +232,7 @@ class Board:
 
         return (initialRow, initialCol), (finalRow, finalCol)
 
-    def single_node_to_index(self, pos):
-        pos_x, pos_y = pos
-        row = (pos_y - self.start_y) // self.cell_size
-        col = (pos_x - self.start_x) // self.cell_size
-
-        if 0 <= row < 5 and 0 <= col < 5:
-            return (row, col)
-        return None
+  
 
     def get_piece_at(self, pos_x, pos_y):
         row = (pos_y - self.start_y) // self.cell_size
@@ -386,7 +384,7 @@ class Board:
     
     def get_all_pieces(self,player_turn):
 
-        piece_value = 1 if player_turn else 2
+        piece_value = 2 if player_turn else 1
         positions = []
 
         for row in range(self.board.shape[0]):
@@ -395,3 +393,57 @@ class Board:
                     positions.append((row, col))
 
         return positions
+    
+    def single_node_to_index(self,pos):
+        # print(f'Receiving pos {pos}')
+        pos_x,pos_y = pos
+        row = (pos_y - self.start_y) // self.cell_size
+        col = (pos_x - self.start_y) // self.cell_size
+
+        if 0 <= row < 5 and 0 <= col < 5:
+            return (row,col)
+
+    def index_to_single_node(self, row, col):
+        return self.nodes[row * 5 + col]  # for 5x5 board
+
+    def clone(self):
+        cloned_board = Board.__new__(Board)  # Create uninitialized instance
+
+        # Copy essential game state manually
+        cloned_board.grid_size = self.grid_size
+        cloned_board.cell_size = self.cell_size
+        cloned_board.board = self.board.copy()  # NumPy arrays have .copy()
+        cloned_board.start_x = self.start_x
+        cloned_board.start_y = self.start_y
+
+        # Skip loading images (Pygame surfaces) to avoid deepcopy issues
+        cloned_board.tiger_image = None
+        cloned_board.goat_image = None
+
+        # Copy nodes and game status
+        cloned_board.nodes = copy.deepcopy(self.nodes)
+        cloned_board.is_tigers_turn = self.is_tigers_turn
+        cloned_board.is_tiger_jump = self.is_tiger_jump
+        cloned_board.goats = copy.deepcopy(self.goats)
+
+        return cloned_board
+
+
+    def is_tiger_jump(self, src, dest):
+        # This method assumes a valid jump is 2 steps away from src,
+        # and there must be a goat in between
+        middle = self.get_middle_position(src, dest)
+        if middle is None:
+            return False
+        return self.get_piece_at(*middle) == 2  # 2 = Goat
+
+    def get_middle_position(self, src, dest):
+        src_x, src_y = src
+        dest_x, dest_y = dest
+
+        mid_x = (src_x + dest_x) // 2
+        mid_y = (src_y + dest_y) // 2
+
+        if (mid_x, mid_y) in self.nodes:
+            return (mid_x, mid_y)
+        return None

@@ -17,8 +17,8 @@ class Move:
         #   to_x, to_y, "Player turn ", player_turn)
         piece_at_destination = self.board.get_piece_at(to_x, to_y)
         if player_turn == False:  # Turn of Tiger
-            if piece_at_destination is not None and piece_at_destination == 1 or piece_at_destination == 2:
-                print("Invalid tiger move piece exists in t{he node")
+            if piece_at_destination in (1,2):
+                print("Invalid tiger move piece exists in the node")
                 return False
             else:
                 surrounding_node = self.board.get_surrounding_nodes(from_pos)

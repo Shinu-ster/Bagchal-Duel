@@ -12,7 +12,7 @@ pygame.init()
 WIDTH, HEIGHT = 800, 800
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-FONT = pygame.font.Font(constant.FONT_PATH, 50)
+FONT = pygame.font.SysFont(constant.FONT_PATH, 70)
 
 # Initialize Screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
