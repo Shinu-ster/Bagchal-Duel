@@ -407,26 +407,13 @@ class Board:
         return self.nodes[row * 5 + col]  # for 5x5 board
 
     def clone(self):
-        cloned_board = Board.__new__(Board)  # Create uninitialized instance
+        new_board = Board()
+        new_board.board = np.copy(self.board)
+        new_board.goats = copy.deepcopy(self.goats)
+        new_board.is_tigers_turn = self.is_tigers_turn
+        new_board.eaten_goats = getattr(self, 'eaten_goats', 0)
+        return new_board
 
-        # Copy essential game state manually
-        cloned_board.grid_size = self.grid_size
-        cloned_board.cell_size = self.cell_size
-        cloned_board.board = self.board.copy()  # NumPy arrays have .copy()
-        cloned_board.start_x = self.start_x
-        cloned_board.start_y = self.start_y
-
-        # Skip loading images (Pygame surfaces) to avoid deepcopy issues
-        cloned_board.tiger_image = None
-        cloned_board.goat_image = None
-
-        # Copy nodes and game status
-        cloned_board.nodes = copy.deepcopy(self.nodes)
-        cloned_board.is_tigers_turn = self.is_tigers_turn
-        cloned_board.is_tiger_jump = self.is_tiger_jump
-        cloned_board.goats = copy.deepcopy(self.goats)
-
-        return cloned_board
 
 
     def is_tiger_jump(self, src, dest):

@@ -13,19 +13,28 @@ def evaluate_board(board):
 
 
 def generate_valid_moves(current_board, turn, goats_remaining):
+    print()
+    print('Reaches Generate Valid Moves:')
+    print()
     all_moves = []
     pieces = current_board.get_all_pieces(turn)
     print(f'Getting all the pieces: {pieces}')
-    
+
     move_instance = Move(current_board)
-    
+
     if turn == 1:  # Goat turn
         if goats_remaining > 0:
             for node in current_board.nodes:
+                print()
+                print(
+                    f'Working on node {node} still in function generate valid moves')
+                print()
                 if current_board.get_piece_at(*node) == 0:
-                    all_moves.append((None, node))  # Goat placement (None as src)
+                    # Goat placement (None as src)
+                    all_moves.append((None, node))
+                    print(f'All moves are such {all_moves}')
         else:
-            for piece in pieces:    
+            for piece in pieces:
                 print(f"[DEBUG] node passed to index_to_single_node: {piece}")
                 # Convert from board indices to screen coordinates
                 node = current_board.index_to_single_node(*piece)
@@ -37,7 +46,8 @@ def generate_valid_moves(current_board, turn, goats_remaining):
 
                     if current_board.get_piece_at(*neighbor) == 0:
                         if move_instance.is_valid_move(piece, neighbor, turn):
-                            all_moves.append((piece, neighbor))  # Board index piece, screen coord neighbor
+                            # Board index piece, screen coord neighbor
+                            all_moves.append((piece, neighbor))
     else:  # Tiger turn
         for piece in pieces:
             print(f'Printing pieces: {piece}')
@@ -54,17 +64,22 @@ def generate_valid_moves(current_board, turn, goats_remaining):
 
                 if current_board.get_piece_at(*neighbor) == 0:
                     if move_instance.is_valid_move(node, neighbor, turn):
-                        all_moves.append((node, neighbor))  # Add valid move in screen coords
+                        # Add valid move in screen coords
+                        all_moves.append((node, neighbor))
 
             # Get valid tiger jumps
             jumps = get_possible_tiger_jumps(current_board, node)
             for jump in jumps:
                 # assuming jump = (middle_pos, landing_pos)
                 if move_instance.is_valid_tiger_jump(piece, jump[0], jump[1]):
-                    all_moves.append((node, jump[1]))  # Add valid tiger jump in screen coords
+                    # Add valid tiger jump in screen coords
+                    all_moves.append((node, jump[1]))
 
+    print()
+    print('Returned all Moves')
+    print(f'Returning Moves are {all_moves}')
+    print()
     return all_moves
-
 
 
 def get_possible_tiger_jumps(board, tiger_pos):
@@ -114,7 +129,8 @@ def get_possible_tiger_jumps(board, tiger_pos):
     elif col == num_columns - 1:
         offsets = right_edge_with_diagonal_offsets if row == 2 else right_edge_offsets
     else:
-        offsets = middle_offsets if ((pos_x + pos_y) // 100) % 2 == 0 else middle_offsets_no_diagonal
+        offsets = middle_offsets if (
+            (pos_x + pos_y) // 100) % 2 == 0 else middle_offsets_no_diagonal
 
     for offset in offsets:
         middle_index = current_index + offset
@@ -131,39 +147,108 @@ def get_possible_tiger_jumps(board, tiger_pos):
     return possible_jumps
 
 
-def apply_move(board, move,turn):
+def apply_move(board, move, turn):
     new_board = board.clone()
-
+    print(f'Getting Moves: {move}')
     src, dest = move
 
     if turn == 0:
+        # Tiger move
         if new_board.is_tiger_jump(src, dest):
             jumped_goat = new_board.get_middle_position(src, dest)
             new_board.remove_piece(jumped_goat)
             new_board.eaten_goats += 1
             print(f'Src is : {src}')
-            index_src = board.single_node_to_index(src)
-            index_dest = board.single_node_to_index(dest)
-            new_board.update_board((index_src, index_dest))
 
-        # new_board.update_board((src, dest))
-    else:
-        # new_board.update_board((src, dest))
         index_src = board.single_node_to_index(src)
         index_dest = board.single_node_to_index(dest)
         new_board.update_board((index_src, index_dest))
 
+    else:
+        # Goat move or placement
+        if src is None:
+            # Goat placement case
+            print("Placing new goat at:", dest)
+            index_dest = board.single_node_to_index(dest)
+            new_board.place_goat(index_dest)  # Assuming such a method exists
+        else:
+            # Regular goat move
+            index_src = board.single_node_to_index(src)
+            index_dest = board.single_node_to_index(dest)
+            new_board.update_board((index_src, index_dest))
+
     return new_board
 
 
-def is_terminal(board,move):
+def is_terminal(board, move):
     return move.check_game_over() is not None
 
 
-def handle_ai_move(board,turn,goats_remaining):
-    print('This function called')
-    print('Board')
-    print(board)
-    print(f'Turn is {turn}')
-    print(f'Goats Remaining {goats_remaining}')
-    pass
+def get_best_ai_move(board, turn, goats_remaining, depth=3):
+    """
+    Chooses the best move using Alpha-Beta pruning.
+    turn = 0 → Tiger's turn
+    turn = 1 → Goat's turn
+    """
+    from ai.alpha_beta import alpha_beta
+    best_move = None
+    best_eval = float('-inf') if turn == 0 else float('inf')
+    print('Reached Get Best ai move function')
+    print()
+
+    possible_moves = generate_valid_moves(board, turn, goats_remaining)
+    print("Helloooooooooooooooo")
+    print(f'Got possible moves {possible_moves}')
+
+    for move in possible_moves:
+        new_board = apply_move(board, move, turn)
+        move_obj = Move(new_board)
+
+        score = alpha_beta(
+            new_board,
+            depth - 1,
+            alpha=float('-inf'),
+            beta=float('inf'),
+            maximizing_player=(turn == 0),
+            turn=not turn,
+            move_obj=move_obj,
+            goats_remaining=goats_remaining if move[0] else goats_remaining - 1
+        )
+
+        if (turn == 0 and score > best_eval) or (turn == 1 and score < best_eval):
+            best_eval = score
+            best_move = move
+
+    return best_move
+
+
+def handle_ai_move(board, turn, goats_remaining):
+    """
+    Handles the AI move, updates the board.
+    `game` is an object that contains .board, .turn, .move, etc.
+    """
+    print(f'Handling turn of {turn}')
+    best_move = get_best_ai_move(board, turn, goats_remaining)
+
+    if best_move is not None:
+        src, dest = best_move
+
+        if src is None:
+            # Goat placement
+            Move.drop_goat(dest)
+        else:
+            # Movement (for goat or tiger)
+            sx, sy = board.single_node_to_index(src)
+            tx, ty = board.single_node_to_index(dest)
+
+            if turn == 0:  # Tiger move
+                is_eat_move, goat_to_remove = Move.is_valid_tiger_eat_move(
+                    (sx, sy), (tx, ty))
+                if is_eat_move:
+                    gx, gy = goat_to_remove
+                    board.update_board(((gx, gy), (gx, gy)))  # Remove goat
+
+            board.update_board(((sx, sy), (tx, ty)))  # Apply actual move
+
+    game.turn = not game.turn
+    game.selected_piece = None
