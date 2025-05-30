@@ -5,9 +5,11 @@ import numpy as np
 import copy
 
 
-
 class Board:
-    def __init__(self):
+    def __init__(self, skip_init=False):
+        if skip_init:
+            return  # Don’t call create_board or load anything
+
         self.grid_size = constant.BOARD_SIZE
         self.cell_size = constant.CELL_SIZE
         self.board = self.create_board()
@@ -51,7 +53,7 @@ class Board:
 
         # All other spaces are empty initially (goats will be placed during gameplay)
         return board
-    
+
     def __str__(self):
         return str(self.board)
 
@@ -83,17 +85,16 @@ class Board:
         cell_size = constant.CELL_SIZE
         line_width = 4  # Thickness of the diagonal lines
 
-
-
         # Calculate top-left position to center the board
         offset_x = (screen.get_width() - constant.BOARD_ROW * cell_size) // 2
         offset_y = (screen.get_height() - constant.BOARD_COL * cell_size) // 2
         # Draw thick outer border around the whole board
-        board_width = constant.BOARD_COL * cell_size 
-        board_height = constant.BOARD_ROW * cell_size 
+        board_width = constant.BOARD_COL * cell_size
+        board_height = constant.BOARD_ROW * cell_size
         outer_rect = pygame.Rect(offset_x, offset_y, board_width, board_height)
 
-        pygame.draw.rect(screen, constant.GRID_COLOR, outer_rect, line_width + 2)
+        pygame.draw.rect(screen, constant.GRID_COLOR,
+                         outer_rect, line_width + 2)
 
         # Draw grid
         for i in range(constant.BOARD_ROW):  # Corrected to draw for a 5x5 grid
@@ -102,7 +103,7 @@ class Board:
 
                 # Draw grid lines (rectangle borders)
                 pygame.draw.rect(screen, constant.GRID_COLOR,
-                                 (x, y, cell_size, cell_size), line_width  )
+                                 (x, y, cell_size, cell_size), line_width)
 
                 # Adjust diagonal lines to prevent overflow
                 offset = line_width // 2  # Reduce overflow by half of the line width
@@ -225,14 +226,14 @@ class Board:
         finalCol = (to_x - self.start_x) // self.cell_size
 
         if 0 <= initialRow < 5 and 0 <= initialCol < 5:
-            print(f"Index at initial Pos [{initialRow}][{initialCol}]")
+            # print(f"Index at initial Pos [{initialRow}][{initialCol}]")
+            pass
 
         if 0 <= finalRow < 5 and 0 <= finalCol < 5:
-            print(f"Index at final Pos [{finalRow}][{finalCol}]")
+            # print(f"Index at final Pos [{finalRow}][{finalCol}]")
+            pass
 
         return (initialRow, initialCol), (finalRow, finalCol)
-
-  
 
     def get_piece_at(self, pos_x, pos_y):
         row = (pos_y - self.start_y) // self.cell_size
@@ -288,13 +289,13 @@ class Board:
             # print(f'Printing col for top edge {col}')
             if col == 2:
                 offsets = top_edge_with_diagonal_offsets
-            else: 
+            else:
                 offsets = top_edge_offsets
         elif row == num_rows - 1:
             # print(f'Printing col for bottom edge {col}')
             if col == 2:
                 offsets = bottom_edge_with_diagonal_offsets
-            else: 
+            else:
                 offsets = bottom_edge_offsets
         elif col == 0:
             # print(f'Printing col for left edge {row}')
@@ -306,7 +307,7 @@ class Board:
             # print(f'Printing col for right edge {row}')
             if row == 2:
                 offsets = right_edge_with_diagonal_offsets
-            else: 
+            else:
                 offsets = right_edge_offsets
         else:
             # Middle node - choose diagonal or no-diagonal based on pattern
@@ -381,8 +382,8 @@ class Board:
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
         return self.board[row][col] == 2
-    
-    def get_all_pieces(self,player_turn):
+
+    def get_all_pieces(self, player_turn):
 
         piece_value = 2 if player_turn else 1
         positions = []
@@ -393,27 +394,35 @@ class Board:
                     positions.append((row, col))
 
         return positions
-    
-    def single_node_to_index(self,pos):
+
+    def single_node_to_index(self, pos):
         # print(f'Receiving pos {pos}')
-        pos_x,pos_y = pos
+        pos_x, pos_y = pos
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_y) // self.cell_size
 
         if 0 <= row < 5 and 0 <= col < 5:
-            return (row,col)
+            return (row, col)
 
     def index_to_single_node(self, row, col):
         return self.nodes[row * 5 + col]  # for 5x5 board
 
     def clone(self):
-        new_board = Board()
+        new_board = Board(skip_init=True)
         new_board.board = np.copy(self.board)
         new_board.goats = copy.deepcopy(self.goats)
         new_board.is_tigers_turn = self.is_tigers_turn
         new_board.eaten_goats = getattr(self, 'eaten_goats', 0)
-        return new_board
 
+        # Copy all essential visual/positioning attributes
+        new_board.nodes = self.nodes
+        new_board.cell_size = self.cell_size
+        new_board.grid_size = self.grid_size
+        new_board.start_x = self.start_x
+        new_board.start_y = self.start_y
+        new_board.tiger_image = self.tiger_image
+        new_board.goat_image = self.goat_image
+        return new_board
 
 
     def is_tiger_jump(self, src, dest):

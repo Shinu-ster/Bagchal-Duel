@@ -4,7 +4,7 @@ from constants import constant
 from .move import Move
 import sys
 # from ai.ai_engine import *
-from ai.ai_engine import get_best_ai_move
+# from ai.ai_engine import get_best_ai_move
 from ai.helpers import handle_ai_move
 
 
@@ -17,12 +17,12 @@ def render_text_with_border(font, message, text_color, border_color, border_widt
     for dx in [-border_width, 0, border_width]:
         for dy in [-border_width, 0, border_width]:
             if dx != 0 or dy != 0:
-                border_surface.blit(font.render(message, True, border_color), (dx + border_width, dy + border_width))
+                border_surface.blit(font.render(
+                    message, True, border_color), (dx + border_width, dy + border_width))
 
     # Draw the main text
     border_surface.blit(base, (border_width, border_width))
     return border_surface
-
 
 
 class Game:
@@ -34,16 +34,23 @@ class Game:
         self.selected_piece = None
         self.move = Move(self.board)
         self.mode = mode
-        self.turn = True
-        self.handle_ai_move = handle_ai_move
+
         self.player_side = player_side
+        self.turn = False if (
+            self.mode == 'ai' and self.player_side == 'tiger') else True
+        # (self.mode == 'ai' and self.player_side=='tiger')? self.turn = False : self.turn == True
+        # self.turn = True
+        self.handle_ai_move = handle_ai_move
 
         self.turn_font = pygame.font.Font(
             'assets/fonts/WinkyRough-Black.ttf', 40)
-        self.end_game_font = pygame.font.Font('assets/fonts/WinkyRough-Black.ttf',60)
-        self.end_game_font2 = pygame.font.Font('assets/fonts/WinkyRough-Black.ttf',40)
+        self.end_game_font = pygame.font.Font(
+            'assets/fonts/WinkyRough-Black.ttf', 60)
+        self.end_game_font2 = pygame.font.Font(
+            'assets/fonts/WinkyRough-Black.ttf', 40)
         game_font = pygame.font.Font(constant.FONT_PATH, 70)
-        self.game_name = render_text_with_border(game_font, "Baghchal Duel", constant.WHITE, (26, 26, 25), border_width=3)
+        self.game_name = render_text_with_border(
+            game_font, "Baghchal Duel", constant.WHITE, (26, 26, 25), border_width=3)
         self.game_name_rect = self.game_name.get_rect(center=(400, 100))
 
     def display_info(self):
@@ -236,72 +243,90 @@ class Game:
                                 print("Not valid node")
 
                     else:
-                            print('Side Ai')
-                            print(f'Mode {self.mode}')
-                            print(f'Player side is {self.player_side}')
+                        print('Side Ai')
+                        print(f'Mode {self.mode}')
+                        print(f'Player side is {self.player_side}')
+                        print(f'Printing self.turn {self.turn}')
 
-                            if self.turn == True:  # Goat's turn
-                                if self.player_side == 'goat':
-                                    # Player is goat
-                                    if clicked_node:
-                                        node_x, node_y = clicked_node
-                                        print(f'Player is goat')
-                                        if self.move.goats_remaining > 0:
-                                            if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                                if not self.board.is_goat_at_node(node_x, node_y):
-                                                    if self.move.drop_goat(clicked_node):
-                                                        self.turn = not self.turn
-                                                        self.selected_piece = None
-
-                                                        # Trigger AI immediately if it's now AI's turn
-                                                        if self.player_side != 'tiger':
-                                                            self.handle_ai_move(self.board,self.turn,self.move.goats_remaining)
-
-                                        else:
-                                            if self.board.is_goat_at_node(node_x, node_y):
-                                                self.selected_piece = (node_x, node_y)
-                                            elif self.selected_piece:
-                                                if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                                    if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
-                                                        self.turn = not self.turn
-                                                        self.selected_piece = None
-
-                                                        # Trigger AI if it's now AI's turn
-                                                        if self.player_side != 'tiger':
-                                                            self.handle_ai_move(self.board,self.turn,self.move.goats_remaining)
-
-                               
-
-                            elif self.turn == False:  # Tiger's turn
-                                if self.player_side == 'tiger':
-                                    if clicked_node:
-                                        node_x, node_y = clicked_node
-
+                        if self.turn == True:  # Goat's turn
+                            if self.player_side == 'goat':
+                                # Player is goat
+                                if clicked_node:
+                                    node_x, node_y = clicked_node
+                                    print(f'Player is goat')
+                                    print(f'goats remaining {self.move.goats_remaining}')
+                                    if self.move.goats_remaining > 0:
                                         if self.board.piece_exists_in_node(node_x, node_y, self.turn):
-                                            self.selected_piece = (node_x, node_y)
+                                            if not self.board.is_goat_at_node(node_x, node_y):
+                                                if self.move.drop_goat(clicked_node):
+                                                    self.turn = not self.turn
+                                                    self.selected_piece = None
+
+                                                    # self.draw()  # or whatever your method is to update the screen
+                                                    # pygame.display.update()
+
+
+                                                    # Trigger AI immediately if it's now AI's turn
+                                                    if self.player_side != 'tiger':
+                                                        self.board,self.turn = self.handle_ai_move(
+                                                            self.board, self.turn, self.move.goats_remaining)
+                                                        # print(f'Turn is {self.turn}')
+                                    else:
+                                        if self.board.is_goat_at_node(node_x, node_y):
+                                            self.selected_piece = (
+                                                node_x, node_y)
                                         elif self.selected_piece:
-                                            sx, sy = self.board.single_node_to_index(self.selected_piece)
-                                            tx, ty = self.board.single_node_to_index((node_x, node_y))
+                                            if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                                if self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
+                                                    self.turn = not self.turn
+                                                    self.selected_piece = None
 
-                                            is_eat_move, goat_to_remove = self.move.is_valid_tiger_eat_move((sx, sy), (tx, ty))
-                                            if is_eat_move:
-                                                self.move.eaten_goats += 1
-                                                gx, gy = goat_to_remove
-                                                self.board.update_board(((gx, gy), (gx, gy)))
-                                                self.board.update_board(((sx, sy), (tx, ty)))
-                                                self.turn = not self.turn
-                                                self.selected_piece = None
+                                                    # Trigger AI if it's now AI's turn
+                                                    if self.player_side != 'tiger':
+                                                        print(
+                                                            f'Passing turn {self.turn}')
+                                                        self.handle_ai_move(
+                                                            self.board, self.turn, self.move.goats_remaining)
 
-                                                if self.player_side != 'goat':
-                                                    self.handle_ai_move(self.board,self.turn,self.move.goats_remaining)
-                                            elif self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
-                                                self.board.update_board(((sx, sy), (tx, ty)))
-                                                self.turn = not self.turn
-                                                self.selected_piece = None
+                        elif self.turn == False:  # Tiger's turn
+                            if self.player_side == 'tiger':
+                                self.handle_ai_move(
+                                    self.board, self.turn, self.move.goats_remaining)
+                                if clicked_node:
+                                    node_x, node_y = clicked_node
 
-                                                if self.player_side != 'goat':
-                                                    self.handle_ai_move(self.board,self.turn,self.move.goats_remaining)
-                               
+                                    if self.board.piece_exists_in_node(node_x, node_y, self.turn):
+                                        self.selected_piece = (node_x, node_y)
+                                    elif self.selected_piece:
+                                        sx, sy = self.board.single_node_to_index(
+                                            self.selected_piece)
+                                        tx, ty = self.board.single_node_to_index(
+                                            (node_x, node_y))
+
+                                        is_eat_move, goat_to_remove = self.move.is_valid_tiger_eat_move(
+                                            (sx, sy), (tx, ty))
+                                        if is_eat_move:
+                                            self.move.eaten_goats += 1
+                                            gx, gy = goat_to_remove
+                                            self.board.update_board(
+                                                ((gx, gy), (gx, gy)))
+                                            self.board.update_board(
+                                                ((sx, sy), (tx, ty)))
+                                            self.turn = not self.turn
+                                            self.selected_piece = None
+
+                                            if self.player_side != 'goat':
+                                                self.handle_ai_move(
+                                                    self.board, self.turn, self.move.goats_remaining)
+                                        elif self.move.is_valid_move(self.selected_piece, (node_x, node_y), self.turn):
+                                            self.board.update_board(
+                                                ((sx, sy), (tx, ty)))
+                                            self.turn = not self.turn
+                                            self.selected_piece = None
+
+                                            if self.player_side != 'goat':
+                                                self.handle_ai_move(
+                                                    self.board, self.turn, self.move.goats_remaining)
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_r]:
@@ -443,7 +468,8 @@ class Game:
 
             if winner:
                 pygame.time.wait(500)
-                self.screen.fill(constant.MAIN_MENU_BG)  # Background color for winner
+                # Background color for winner
+                self.screen.fill(constant.MAIN_MENU_BG)
                 self.screen.blit(self.game_name, self.game_name_rect)
 
                 # Show winner screen
