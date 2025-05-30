@@ -254,12 +254,12 @@
 #     game.selected_piece = None
 
 
-def handle_ai_move(board, turn, goats_remaining):
+def handle_ai_move(board, turn, goats_remaining, eaten_goats):
     move = get_best_ai_move(board, turn, goats_remaining)
     if move:
-        new_board = apply_move(board, move, turn)
-        return new_board,not turn
-    return board,not turn
+        new_board, eaten = apply_move(board, move, turn)
+        return new_board, not turn, goats_remaining, eaten_goats + eaten
+    return board, not turn, goats_remaining, eaten_goats
 
 
 def get_best_ai_move(board, turn, goats_remaining):
@@ -271,8 +271,8 @@ def get_best_ai_move(board, turn, goats_remaining):
     moves = generate_valid_moves(board, turn, goats_remaining)
     print('After getting moves')
     for move in moves:
-        new_board = apply_move(board, move, turn)
-        score = alpha_beta(new_board, depth=3, alpha=-999,
+        new_board, eaten = apply_move(board, move, turn)
+        score = alpha_beta(new_board, depth=4, alpha=-999,
                            beta=-999, maximizing=False, turn=1-turn)
 
         if score > best_score:
@@ -309,7 +309,8 @@ def generate_valid_moves(board, turn, goats_remaining):
                 if board.get_piece_at(*neighbor) == 0:
                     moves.append((node, neighbor))
             jumps = get_possible_tiger_jumps(board, node)
-            # print(f'jumps can be done from {jumps}')
+            print(f'Node {node}')
+            print(f'jumps can be done from {jumps}')
 
             for jump in jumps:
                 moves.append((node, jump[1]))
@@ -318,28 +319,32 @@ def generate_valid_moves(board, turn, goats_remaining):
 
 
 def apply_move(board, move, turn):
-    # print(f'Cloning Board')
     new_board = board.clone()
-    src, dest = move
 
-    if turn == True:  # Goat
+    # Carry over current eaten goats count (if your clone() doesn't do it)
+    new_board.eaten_goats = board.eaten_goats
+
+    src, dest = move
+    eaten = 0
+
+    if turn:  # Goat
         if src is None:
             index_dest = board.single_node_to_index(dest)
             new_board.place(index_dest)
         else:
-            i,j = board.node_to_index(src,dest)
+            i, j = board.node_to_index(src, dest)
             new_board.update_board((i, j))
     else:  # Tiger
         if new_board.is_tiger_jump(src, dest):
             jumped = new_board.get_middle_position(src, dest)
-            new_board.remove_piece(jumped)  # Removing the middle Goat
+            new_board.remove_piece(jumped)
+            eaten = 1
             new_board.eaten_goats += 1
-        
-        i,j = board.node_to_index(src,dest)
-        # print(f'Index to move {i} {j}')
+
+        i, j = board.node_to_index(src, dest)
         new_board.update_board((i, j))
-    # print('New board',new_board)
-    return new_board
+
+    return new_board, eaten
 
 
 def get_possible_tiger_jumps(boardIns, tiger_pos):
@@ -349,6 +354,8 @@ def get_possible_tiger_jumps(boardIns, tiger_pos):
     # print(f'After calling board Ins')
     jumps = []
 
+    print(f'Tiger Pos is {tiger_pos}')
+    # print(f'All Nodes {allNodes}')
     if tiger_pos not in allNodes:
         return jumps
 
@@ -377,31 +384,45 @@ def get_possible_tiger_jumps(boardIns, tiger_pos):
 
     if row == 0 and col == 0:
         offsets = top_left_corner_offsets
+        # print(f'Top left corner')
     elif row == 0 and col == num_cols - 1:
         offsets = top_right_corner_offsets
+        # print(f'Top right corner')
     elif row == num_rows - 1 and col == 0:
         offsets = bottom_left_corner_offsets
+        # print(f'bottom left corner')
     elif row == num_rows - 1 and col == num_cols - 1:
         offsets = bottom_right_corner_offsets
+        # print(f'bottom right corner')
+
     elif row == 0:
         offsets = top_edge_with_diagonal_offsets if col == 2 else top_edge_offsets
+
     elif row == num_rows - 1:
         offsets = bottom_edge_with_diagonal_offsets if col == 2 else bottom_edge_offsets
+
     elif col == 0:
         offsets = left_edge_with_diagonal_offsets if row == 2 else left_edge_offsets
+
     elif col == num_cols - 1:
         offsets = right_edge_with_diagonal_offsets if row == 2 else right_edge_offsets
+
+        # print('right edge with diagonal')
     else:
         if ((pos_x + pos_y) // 100) % 2 == 0:
             offsets = middle_offsets
+            # print('Middle offset')
         else:
             offsets = middle_offsets_no_diagonal
+            # print('Middle offset with diagonal')
 
     for offset in offsets:
         neighbor_index = current_index + offset
         if 0 <= neighbor_index < len(allNodes):
+            # print('Neighbour Index ',neighbor_index)
             goat_pos = allNodes[neighbor_index]
-            if boardIns.get_piece_at(*goat_pos) == 1:  # goat
+            # print('Goats Positions are ',goat_pos)
+            if boardIns.get_piece_at(*goat_pos) == 2:  # goat
                 double_jump_index = current_index + 2 * offset
                 if 0 <= double_jump_index < len(allNodes):
                     jump_pos = allNodes[double_jump_index]

@@ -34,6 +34,7 @@ class Board:
 
         # List of goats placed on the board
         self.goats = []
+        self.eaten_goats = 0
 
     def create_board(self):
         """Initialize the board with tigers and empty spaces."""
@@ -242,6 +243,12 @@ class Board:
         if 0 <= row < 5 and 0 <= col < 5:
             return self.board[row][col]  # 1 = Tiger, 2 = Goat, 0 = Empty
         return None
+    
+
+    def remove_piece(self,middle_pos):
+        i,j = self.single_node_to_index(middle_pos)
+        self.board[i][j] = 0
+        
 
     def get_surrounding_nodes(self, selected_node):
         if selected_node not in self.nodes:

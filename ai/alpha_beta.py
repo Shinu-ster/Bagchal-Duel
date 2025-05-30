@@ -42,7 +42,7 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn):
     if maximizing:
         max_eval = float('-inf')
         for move in moves:
-            new_board = apply_move(board, move, turn)
+            new_board, eaten = apply_move(board, move, turn)
             # print('Calling alpha beta')
             eval = alpha_beta(new_board, depth - 1, alpha, beta, False, 1 - turn)
             max_eval = max(max_eval, eval)
@@ -53,7 +53,7 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn):
     else:
         min_eval = float('inf')
         for move in moves:
-            new_board = apply_move(board, move, turn)
+            new_board, eaten = apply_move(board, move, turn)
             eval = alpha_beta(new_board, depth - 1, alpha, beta, True, 1 - turn)
             min_eval = min(min_eval, eval)
             beta = min(beta, eval)
@@ -65,7 +65,7 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn):
 def evaluate_board(board):
     tiger_moves = len(generate_valid_moves(board, 0, 0))
     goat_moves = len(generate_valid_moves(board, 1, 0))
-    score = (board.eaten_goats * 100) + tiger_moves - goat_moves
+    score = (board.eaten_goats * 300) + (tiger_moves * 2)- (goat_moves * 3)
     return score
 
 
