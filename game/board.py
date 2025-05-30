@@ -195,6 +195,7 @@ class Board:
 
             if turn == False:
                 if self.board[row][col] == 1:
+                    print('Printing board in board class ',self.board)
                     return True
                 elif self.board[row][col] == 2:
                     return False

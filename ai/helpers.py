@@ -285,7 +285,7 @@ def get_best_ai_move(board, turn, goats_remaining):
 def generate_valid_moves(board, turn, goats_remaining):
     moves = []
     pieces = board.get_all_pieces(turn)
-    print(f'Getting all the pieces {pieces}')
+    # print(f'Getting all the pieces {pieces}')
 
     if turn == True:
         if goats_remaining > 0:
@@ -336,9 +336,9 @@ def apply_move(board, move, turn):
             new_board.eaten_goats += 1
         
         i,j = board.node_to_index(src,dest)
-        print(f'Index to move {i} {j}')
+        # print(f'Index to move {i} {j}')
         new_board.update_board((i, j))
-    print('New board',new_board)
+    # print('New board',new_board)
     return new_board
 
 

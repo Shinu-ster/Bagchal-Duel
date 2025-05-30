@@ -3,10 +3,10 @@ import numpy as np
 
 
 class Move:
-    def __init__(self, board):
+    def __init__(self, board,goats_remaining=20,eaten_goats=0):
         self.board = board
-        self.goats_remaining = 20
-        self.eaten_goats = 0
+        self.goats_remaining = goats_remaining
+        self.eaten_goats = eaten_goats
 
     def is_valid_move(self, from_pos, to_pos, player_turn):
 
@@ -257,13 +257,13 @@ class Move:
             return "Tiger"
 
         tiger_positions = self.board.get_all_tiger_positions()
-        print('Tigers pos are : ', tiger_positions)
+        # print('Tigers pos are : ', tiger_positions)
 
         for tiger_pos in tiger_positions:
             surrounding_nodes = self.board.get_surrounding_nodes(tiger_pos)
             for neighbor in surrounding_nodes:
-                print(f'Tiger pos sending in function: {tiger_pos}')
-                print(f'Neighbour pos sending in function: {neighbor}')
+                # print(f'Tiger pos sending in function: {tiger_pos}')
+                # print(f'Neighbour pos sending in function: {neighbor}')
                 if self.board.is_valid_tiger_move(tiger_pos, neighbor):
                     return None  # A tiger can still move, game is not over
 

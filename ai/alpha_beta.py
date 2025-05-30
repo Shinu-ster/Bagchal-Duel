@@ -43,7 +43,7 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn):
         max_eval = float('-inf')
         for move in moves:
             new_board = apply_move(board, move, turn)
-            print('Calling alpha beta')
+            # print('Calling alpha beta')
             eval = alpha_beta(new_board, depth - 1, alpha, beta, False, 1 - turn)
             max_eval = max(max_eval, eval)
             alpha = max(alpha, eval)
