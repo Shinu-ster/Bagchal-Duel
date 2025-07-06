@@ -257,6 +257,7 @@ class Game:
                                     # print(
                                     #     f'goats remaining {self.move.goats_remaining}')
                                     if self.move.goats_remaining > 0:
+                                        print('This is running for more than 20')
                                         if self.board.piece_exists_in_node(node_x, node_y, self.turn):
                                             if not self.board.is_goat_at_node(node_x, node_y):
                                                 print(
@@ -266,7 +267,7 @@ class Game:
                                                     self.turn = not self.turn
                                                     self.selected_piece = None
 
-                                                    pygame.time.delay(1000)    
+                                                    # pygame.time.delay(1000)    
                                                     # Trigger AI immediately if it's now AI's turn
                                                     if self.player_side != 'tiger':
                                                         
@@ -286,6 +287,7 @@ class Game:
                                                         if winner:
                                                             self.running = False
                                     else:
+                                        print('This is running for less than 20')
                                         if self.board.is_goat_at_node(node_x, node_y):
                                             self.selected_piece = (
                                                 node_x, node_y)
@@ -318,14 +320,15 @@ class Game:
 
                         elif self.turn == False:  # Tiger's turn
                             if self.player_side == 'tiger':
-                                goats_remaining = self.move.goats_remaining
-                                eaten_goats = self.move.eaten_goats
+                                print('This is running')
+                                # goats_remaining = self.move.goats_remaining
+                                # eaten_goats = self.move.eaten_goats
 
-                                self.board, self.turn, updated_goats_remaining, updated_eaten_goats = self.handle_ai_move(
-                                    self.board, self.turn, goats_remaining, eaten_goats)
-                                self.move = Move(self.board)
-                                self.move.goats_remaining = updated_goats_remaining
-                                self.move.eaten_goats = updated_eaten_goats
+                                # self.board, self.turn, updated_goats_remaining, updated_eaten_goats = self.handle_ai_move(
+                                #     self.board, self.turn, goats_remaining, eaten_goats)
+                                # self.move = Move(self.board)
+                                # self.move.goats_remaining = updated_goats_remaining
+                                # self.move.eaten_goats = updated_eaten_goats
 
                                 print(f'Returns board is {self.board}')
                                 winner = self.move.check_game_over()
@@ -355,6 +358,15 @@ class Game:
                                             self.turn = not self.turn
                                             self.selected_piece = None
 
+                                            if self.player_side == 'tiger':
+                                                goats_remaining = self.move.goats_remaining
+                                                eaten_goats = self.move.eaten_goats
+                                                self.board, self.turn, updated_goats_remaining, updated_eaten_goats = self.handle_ai_move(
+                                                    self.board, self.turn, goats_remaining, eaten_goats)
+                                                self.move = Move(self.board)
+                                                self.move.goats_remaining = updated_goats_remaining
+                                                self.move.eaten_goats = updated_eaten_goats
+
                                             # if self.player_side != 'goat':
                                             #     self.handle_ai_move(
                                             #         self.board, self.turn, self.move.goats_remaining)
@@ -364,9 +376,14 @@ class Game:
                                             self.turn = not self.turn
                                             self.selected_piece = None
 
-                                            # if self.player_side != 'goat':
-                                            #     self.handle_ai_move(
-                                            #         self.board, self.turn, self.move.goats_remaining)
+                                            if self.player_side == 'tiger':
+                                                goats_remaining = self.move.goats_remaining
+                                                eaten_goats = self.move.eaten_goats
+                                                self.board, self.turn, updated_goats_remaining, updated_eaten_goats = self.handle_ai_move(
+                                                    self.board, self.turn, goats_remaining, eaten_goats)
+                                                self.move = Move(self.board)
+                                                self.move.goats_remaining = updated_goats_remaining
+                                                self.move.eaten_goats = updated_eaten_goats
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_r]:

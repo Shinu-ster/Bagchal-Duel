@@ -175,6 +175,7 @@ class Board:
         self.board[x1][y1] = 0  # Clear old position
 
     def update_goat(self, pos):
+        # print(f'Received Pos {pos}')
         x1, y1 = pos
         self.board[x1][y1] = 2
 
