@@ -175,7 +175,7 @@ class Board:
         self.board[x1][y1] = 0  # Clear old position
 
     def update_goat(self, pos):
-        # print(f'Received Pos {pos}')
+        print(f'Received Pos {pos}')
         x1, y1 = pos
         self.board[x1][y1] = 2
 
@@ -191,6 +191,8 @@ class Board:
     def piece_exists_in_node(self, pos_x, pos_y, turn):
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
+
+        print(f'Gotten {row} {col}')
 
         if 0 <= row < 5 and 0 <= col < 5:
             # print(f"Checking board[{row}][{col}]")
@@ -241,6 +243,7 @@ class Board:
     def get_piece_at(self, pos_x, pos_y):
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
+        
         if 0 <= row < 5 and 0 <= col < 5:
             return self.board[row][col]  # 1 = Tiger, 2 = Goat, 0 = Empty
         return None
@@ -408,10 +411,11 @@ class Board:
         # print(f'Receiving pos {pos}')
         pos_x, pos_y = pos
         row = (pos_y - self.start_y) // self.cell_size
-        col = (pos_x - self.start_y) // self.cell_size
-
+        col = (pos_x - self.start_x) // self.cell_size
+        # print(f'Getting Rows and Cols {row}{col}')
         if 0 <= row < 5 and 0 <= col < 5:
             return (row, col)
+
 
     def index_to_single_node(self, row, col):
         return self.nodes[row * 5 + col]  # for 5x5 board

@@ -75,17 +75,19 @@ class Move:
         print('updated board \n', self.board)
 
     def drop_goat(self, to_pos):
-
+        print(f'Dropping goat at Pos {to_pos}')
         to_x, to_y = to_pos
+        print(f'Piece exits in the note {self.board.piece_exists_in_node(to_x,to_y,False)}')
         if self.board.piece_exists_in_node(to_x, to_y, False):
             print('Piece exists ni thhe node')
             return self.goats_remaining, False
-
         else:
             print("Pece doesn't' exsts in the board")
-            index = self.board.single_node_to_index(to_pos)
-            print('index of board is ', index)
-            self.board.update_goat(index)
+            print(f'Gotton Pos {to_pos}')
+            # index = self.board.single_node_to_index(to_pos)
+            # print('index of board is ', index)
+            # self.board.update_goat(index)
+            self.board.update_goat(to_pos)
             self.goats_remaining -= 1
             if self.goats_remaining >= 0:
                 print(

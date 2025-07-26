@@ -33,8 +33,11 @@ def generate_valid_moves(board, turn, goats_remaining):
 
     if turn == True:
         if goats_remaining > 0:
+            print('Testing here')
             for node in board.nodes:
+                print(f'Printing board.nodes {board.nodes}')
                 if board.get_piece_at(*node) == 0:
+                    print(f'is empty Node {node}')
                     moves.append((None, node))  # Placement for goats
         else:  # if can't drop any more goats
             for row, col in pieces:
@@ -54,7 +57,7 @@ def generate_valid_moves(board, turn, goats_remaining):
                     moves.append((node, neighbor))
             jumps = get_possible_tiger_jumps(board, node)
             # print(f'Node {node}')
-            print(f'jumps can be done from {jumps}')
+            # print(f'jumps can be done from {jumps}')
 
             for jump in jumps:
                 moves.append((node, jump[1]))
@@ -76,8 +79,9 @@ def apply_move(board, move, turn):
     if turn:  # Goat
         if src is None:
             index_dest = board.single_node_to_index(dest)
-            print('f')
+            print(f'Drop goat at index {index_dest}')
             move_obj.drop_goat(index_dest)
+            print('Excuted the function drop_goat')
         else:
             i, j = board.node_to_index(src, dest)
             new_board.update_board((i, j))
