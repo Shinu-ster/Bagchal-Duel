@@ -173,11 +173,21 @@ class Board:
         # Move piece
         self.board[x2][y2] = self.board[x1][y1]
         self.board[x1][y1] = 0  # Clear old position
+        print('Board after tiger move:')
+        print(self.board)
 
     def update_goat(self, pos):
-        print(f'Received Pos {pos}')
+        # print(f'Received Pos {pos}')
         x1, y1 = pos
-        self.board[x1][y1] = 2
+        # Convert pixel coordinates to board indices
+        row = (y1 - self.start_y) // self.cell_size
+        col = (x1 - self.start_x) // self.cell_size
+        # print(f'Converting ({x1}, {y1}) to board indices ({row}, {col})')
+        if 0 <= row < 5 and 0 <= col < 5:
+            # print(f'Placing goat at board position [{row}][{col}]')
+            self.board[row][col] = 2
+            print('Board after dropping goat:')
+            print(self.board)
 
     def print_board(self):
         """Prints the board state in console (for debugging)."""
@@ -199,7 +209,7 @@ class Board:
 
             if turn == False:
                 if self.board[row][col] == 1:
-                    print('Printing board in board class ',self.board)
+                    print('Printing board in board class ', self.board)
                     return True
                 elif self.board[row][col] == 2:
                     return False
@@ -243,16 +253,14 @@ class Board:
     def get_piece_at(self, pos_x, pos_y):
         row = (pos_y - self.start_y) // self.cell_size
         col = (pos_x - self.start_x) // self.cell_size
-        
+
         if 0 <= row < 5 and 0 <= col < 5:
             return self.board[row][col]  # 1 = Tiger, 2 = Goat, 0 = Empty
         return None
-    
 
-    def remove_piece(self,middle_pos):
-        i,j = self.single_node_to_index(middle_pos)
+    def remove_piece(self, middle_pos):
+        i, j = self.single_node_to_index(middle_pos)
         self.board[i][j] = 0
-        
 
     def get_surrounding_nodes(self, selected_node):
         if selected_node not in self.nodes:
@@ -416,7 +424,6 @@ class Board:
         if 0 <= row < 5 and 0 <= col < 5:
             return (row, col)
 
-
     def index_to_single_node(self, row, col):
         return self.nodes[row * 5 + col]  # for 5x5 board
 
@@ -436,7 +443,6 @@ class Board:
         new_board.tiger_image = self.tiger_image
         new_board.goat_image = self.goat_image
         return new_board
-
 
     def is_tiger_jump(self, src, dest):
         # This method assumes a valid jump is 2 steps away from src,

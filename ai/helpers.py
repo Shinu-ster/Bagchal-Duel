@@ -1,9 +1,10 @@
 def handle_ai_move(board, turn, goats_remaining, eaten_goats):
     move = get_best_ai_move(board, turn, goats_remaining)
     if move:
-        new_board, eaten = apply_move(board, move, turn)
-        return new_board, not turn, goats_remaining, eaten_goats + eaten
-    return board, not turn, goats_remaining, eaten_goats
+        # Do NOT clone or return a new board
+        eaten = apply_move_in_place(board, move, turn)
+        return move, not turn, goats_remaining, eaten_goats + eaten
+    return None, not turn, goats_remaining, eaten_goats
 
 
 def get_best_ai_move(board, turn, goats_remaining):
@@ -11,18 +12,18 @@ def get_best_ai_move(board, turn, goats_remaining):
     best_score = float('-inf')
     best_move = None
 
-    print('Calling to get moves')
+    # print('Calling to get moves')
     moves = generate_valid_moves(board, turn, goats_remaining)
     print('After getting moves')
     for move in moves:
         new_board, eaten = apply_move(board, move, turn)
         score = alpha_beta(new_board, depth=4, alpha=-999,
-                           beta=-999, maximizing=False, turn=1-turn)
+                           beta=-999, maximizing=False, turn=1-turn, goats_remaining=goats_remaining)
 
         if score > best_score:
             best_score = score
             best_move = move
-    #print(f'Best MOve {best_move}')
+    # print(f'Best MOve {best_move}')
     return best_move
 
 
@@ -33,11 +34,12 @@ def generate_valid_moves(board, turn, goats_remaining):
 
     if turn == True:
         if goats_remaining > 0:
-            print('Testing here')
+            # print('Testing here')Testing
             for node in board.nodes:
-                print(f'Printing board.nodes {board.nodes}')
-                if board.get_piece_at(*node) == 0:
-                    print(f'is empty Node {node}')
+                piece_at_node = board.get_piece_at(*node)
+                # print(f'Node {node} has piece: {piece_at_node}')
+                if piece_at_node == 0:
+                    # print(f'is empty Node {node}')
                     moves.append((None, node))  # Placement for goats
         else:  # if can't drop any more goats
             for row, col in pieces:
@@ -73,16 +75,20 @@ def apply_move(board, move, turn):
     # Carry over current eaten goats count (if your clone() doesn't do it)
     new_board.eaten_goats = board.eaten_goats
 
+    # print(f'AI: Original board state: {board.board}')
+    # print(f'AI: Cloned board state: {new_board.board}')
+
     src, dest = move
     eaten = 0
 
     if turn:  # Goat
         if src is None:
-            index_dest = board.single_node_to_index(dest)
-            print(f'Drop goat at index {index_dest}')
-            move_obj.drop_goat(index_dest)
-            print('Excuted the function drop_goat')
+            # Goat placement
+            # print(f'Drop goat at {dest}')
+            move_obj.drop_goat(dest)
+            # print('Executed the function drop_goat')
         else:
+            # Goat movement
             i, j = board.node_to_index(src, dest)
             new_board.update_board((i, j))
     else:  # Tiger
@@ -96,6 +102,29 @@ def apply_move(board, move, turn):
         new_board.update_board((i, j))
 
     return new_board, eaten
+
+
+def apply_move_in_place(board, move, turn):
+    from game.move import Move
+    move_obj = Move(board)
+    src, dest = move
+    eaten = 0
+
+    if turn:  # Goat
+        if src is None:
+            move_obj.drop_goat(dest)
+        else:
+            i, j = board.node_to_index(src, dest)
+            board.update_board((i, j))
+    else:  # Tiger
+        if board.is_tiger_jump(src, dest):
+            jumped = board.get_middle_position(src, dest)
+            board.remove_piece(jumped)
+            eaten = 1
+            board.eaten_goats += 1
+        i, j = board.node_to_index(src, dest)
+        board.update_board((i, j))
+    return eaten
 
 
 def get_possible_tiger_jumps(boardIns, tiger_pos):

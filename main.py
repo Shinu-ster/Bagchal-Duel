@@ -1,4 +1,5 @@
 from menu.start_menu import main_menu, game_mode_menu, choose_side
+from menu.review_menu import review_menu
 from game.game import Game
 from constants import constant
 import sys
@@ -53,6 +54,11 @@ def main():
     elif choice == "rules":
         print("Displaying Rules...")
         # Implement your rules screen here
+    elif choice == "review":
+        print("Opening Review Menu...")
+        review_result = review_menu(screen)
+        if review_result == "back":
+            main()  # Return to main menu
 
 
 if __name__ == "__main__":

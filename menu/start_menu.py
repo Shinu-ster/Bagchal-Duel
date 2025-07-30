@@ -65,15 +65,18 @@ def main_menu(screen):
             FONT, "Baghchal Duel", constant.WHITE, (26, 26, 25), border_width=3)
         play_text = FONT.render("Play", True, constant.WHITE)
         rules_text = FONT.render("Rules", True, constant.WHITE)
+        review_text = FONT.render("Review Games", True, constant.WHITE)
         quit_text = FONT.render("Quit", True, constant.WHITE)
 
         screen.blit(title, (constant.WIDTH//2 - title.get_width()//2, 100))
         screen.blit(play_text, (constant.WIDTH//2 -
-                    play_text.get_width()//2, 300))
+                    play_text.get_width()//2, 250))
         screen.blit(rules_text, (constant.WIDTH//2 -
-                    rules_text.get_width()//2, 400))
+                    rules_text.get_width()//2, 350))
+        screen.blit(review_text, (constant.WIDTH//2 -
+                    review_text.get_width()//2, 450))
         screen.blit(quit_text, (constant.WIDTH//2 -
-                    quit_text.get_width()//2, 500))
+                    quit_text.get_width()//2, 550))
 
         pygame.display.flip()
 
@@ -83,11 +86,11 @@ def main_menu(screen):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if 300 <= y <= 350:
+                if 250 <= y <= 300:
                     return "play"
-                if 400 <= y <= 450:
+                if 350 <= y <= 400:
                     return "rules"
-                if 500 <= y <= 550:
+                if 550 <= y <= 600:
                     pygame.quit()
                     sys.exit()
 
@@ -124,15 +127,17 @@ def game_mode_menu(screen):
 def choose_side(screen):
     """Menu for choosing Goat or Tiger"""
     FONT = pygame.font.Font(constant.FONT_PATH, 70)
-    while True: 
+    while True:
         screen.fill(constant.MAIN_MENU_BG)
         title = FONT.render("Choose Your Side", True, constant.WHITE)
         goat_text = FONT.render("Goat", True, constant.WHITE)
         tiger_text = FONT.render("Tiger", True, constant.WHITE)
 
         screen.blit(title, (constant.WIDTH//2 - title.get_width()//2, 100))
-        screen.blit(goat_text, (constant.WIDTH//2 - goat_text.get_width()//2, 300))
-        screen.blit(tiger_text, (constant.WIDTH//2 - tiger_text.get_width()//2, 400))
+        screen.blit(goat_text, (constant.WIDTH//2 -
+                    goat_text.get_width()//2, 300))
+        screen.blit(tiger_text, (constant.WIDTH//2 -
+                    tiger_text.get_width()//2, 400))
 
         pygame.display.flip()
 

@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Move:
-    def __init__(self, board,goats_remaining=20,eaten_goats=0):
+    def __init__(self, board, goats_remaining=20, eaten_goats=0):
         self.board = board
         self.goats_remaining = goats_remaining
         self.eaten_goats = eaten_goats
@@ -17,7 +17,7 @@ class Move:
         #   to_x, to_y, "Player turn ", player_turn)
         piece_at_destination = self.board.get_piece_at(to_x, to_y)
         if player_turn == False:  # Turn of Tiger
-            if piece_at_destination in (1,2):
+            if piece_at_destination in (1, 2):
                 print("Invalid tiger move piece exists in the node")
                 return False
             else:
@@ -75,26 +75,23 @@ class Move:
         print('updated board \n', self.board)
 
     def drop_goat(self, to_pos):
-        print(f'Dropping goat at Pos {to_pos}')
+        # print(f'Dropping goat at Pos {to_pos}')
         to_x, to_y = to_pos
-        print(f'Piece exits in the note {self.board.piece_exists_in_node(to_x,to_y,False)}')
-        if self.board.piece_exists_in_node(to_x, to_y, False):
-            print('Piece exists ni thhe node')
-            return self.goats_remaining, False
-        else:
-            print("Pece doesn't' exsts in the board")
-            print(f'Gotton Pos {to_pos}')
-            # index = self.board.single_node_to_index(to_pos)
-            # print('index of board is ', index)
-            # self.board.update_goat(index)
+        # Convert to board indices
+        row = (to_y - self.board.start_y) // self.board.cell_size
+        col = (to_x - self.board.start_x) // self.board.cell_size
+        # Only allow placement if the node is empty (not a tiger or goat)
+        if 0 <= row < 5 and 0 <= col < 5 and self.board.board[row][col] == 0:
             self.board.update_goat(to_pos)
             self.goats_remaining -= 1
             if self.goats_remaining >= 0:
-                print(
-                    f'Goats remaining are (in move class){self.goats_remaining}')
+                # print(f'Goats remaining are (in move class){self.goats_remaining}')
                 return self.goats_remaining, True
             else:
                 return self.goats_remaining, False
+        else:
+            print('Piece exists in the node')
+            return self.goats_remaining, False
 
     def is_valid_tiger_eat_move(self, selected_piece, target_node):
         print(
@@ -105,7 +102,7 @@ class Move:
         dx = tx - sx
         dy = ty - sy
 
-        if not self.board.get_piece_at(tx,ty):
+        if not self.board.get_piece_at(tx, ty):
             if abs(dx) == 2 or abs(dy) == 2:
                 mid_x = sx + dx // 2
                 mid_y = sy + dy // 2
@@ -196,20 +193,20 @@ class Move:
                 offsets = top_edge_offsets
 
             # print(f'offset is top edgeg')
-            
+
         elif row == num_rows - 1:
             # print(f'Printing col for bottom edge {col}')
             if col == 2:
                 offsets = bottom_edge_with_diagonal_offsets
-            else: 
+            else:
                 offsets = bottom_edge_offsets
-            
+
             # print(f'offset is bottom edgeg')
         elif col == 0:
             # print(f'Printing col for left edge {col}')
             if row == 2:
                 offsets = left_edge_with_diagonal_offsets
-            else: 
+            else:
                 offsets = left_edge_offsets
 
             # print(f'offset is left edgeg')
@@ -217,8 +214,8 @@ class Move:
             # print(f'Printing col for right edge {col}')
             if row == 2:
                 offsets = right_edge_with_diagonal_offsets
-            else:        
-             offsets = right_edge_offsets
+            else:
+                offsets = right_edge_offsets
         else:
             # Middle node - choose diagonal or no-diagonal based on pattern
             if ((pos_x + pos_y) // 100) % 2 == 0:  # Note: this still uses swapped values!
