@@ -166,15 +166,43 @@ class Board:
 
     def update_board(self, move):
         """Update board after a move (for both player and AI)."""
+        print('Withing update board')
+
         from_pos, to_pos = move
+        print(f'from pos {from_pos}')
+        print(f'to pos {to_pos}')
         x1, y1 = from_pos
         x2, y2 = to_pos
+
+        print(f'From pos value {self.board[x1][y1]}')
+        print(f'to pos value {self.board[x2][y2]}')
 
         # Move piece
         self.board[x2][y2] = self.board[x1][y1]
         self.board[x1][y1] = 0  # Clear old position
-        print('Board after tiger move:')
-        print(self.board)
+        # print('Board after tiger move:')
+        # print(self.board)
+
+
+    def update_board_tiger(self, move):
+        """Update board after a move (for both player and AI)."""
+        print('Withing update board')
+
+        from_pos, to_pos = move
+        print(f'from pos {from_pos}')
+        print(f'to pos {to_pos}')
+        x1, y1 = from_pos
+        x2, y2 = to_pos
+
+        print(f'From pos value {self.board[x1][y1]}')
+        print(f'to pos value {self.board[x2][y2]}')
+
+        # Move piece
+        self.board[x1][y1] = self.board[x2][y2]
+        self.board[x2][y2] = 0  # Clear old position
+        # print('Board after tiger move:')
+        # print(self.board)
+
 
     def update_goat(self, pos):
         # print(f'Received Pos {pos}')
@@ -186,8 +214,8 @@ class Board:
         if 0 <= row < 5 and 0 <= col < 5:
             # print(f'Placing goat at board position [{row}][{col}]')
             self.board[row][col] = 2
-            print('Board after dropping goat:')
-            print(self.board)
+            # print('Board after dropping goat:')
+            # print(self.board)
 
     def print_board(self):
         """Prints the board state in console (for debugging)."""
@@ -462,3 +490,77 @@ class Board:
         if (mid_x, mid_y) in self.nodes:
             return (mid_x, mid_y)
         return None
+    
+
+    def get_jump_position(self,tiger_pos, goat_pos):
+        from collections import namedtuple
+        BoardDimensions = namedtuple("BoardDimensions", ["rows", "cols"])
+        dims = BoardDimensions(rows=5, cols=5)
+        
+        def calculate_nodes():
+            return [(i, j) for i in range(dims.rows) for j in range(dims.cols)]
+        
+        nodes = calculate_nodes()
+        
+        if tiger_pos not in nodes or goat_pos not in nodes:
+            return None
+
+        tiger_index = nodes.index(tiger_pos)
+        goat_index = nodes.index(goat_pos)
+        index_diff = goat_index - tiger_index
+
+        pos_y, pos_x = tiger_pos
+        row = tiger_index // dims.cols
+        col = tiger_index % dims.cols
+
+        # Offset sets
+        middle_offsets = [-5, -4, +1, +6, +5, +4, -1, -6]
+        middle_offsets_no_diagonal = [+1, -1, +5, -5]
+        top_left_corner_offsets = [+1, +5, +6]
+        top_right_corner_offsets = [-1, +4, +5]
+        bottom_left_corner_offsets = [+1, -4, -5]
+        bottom_right_corner_offsets = [-1, -5, -6]
+        left_edge_offsets = [+5, +1, -5]
+        right_edge_offsets = [+5, -5, -1]
+        top_edge_offsets = [+1, -1, +5]
+        bottom_edge_offsets = [+1, -1, -5]
+        bottom_edge_with_diagonal_offsets = [+1, -1, -4, -5, -6]
+        left_edge_with_diagonal_offsets = [+1, +5, +6, -4, -5]
+        right_edge_with_diagonal_offsets = [-1, -5, -6, +4, +5]
+        top_edge_with_diagonal_offsets = [+1, -1, +4, +5, +6]
+
+        # Choose offsets based on board position
+        if row == 0 and col == 0:
+            offsets = top_left_corner_offsets
+        elif row == 0 and col == dims.cols - 1:
+            offsets = top_right_corner_offsets
+        elif row == dims.rows - 1 and col == 0:
+            offsets = bottom_left_corner_offsets
+        elif row == dims.rows - 1 and col == dims.cols - 1:
+            offsets = bottom_right_corner_offsets
+        elif row == 0:
+            offsets = top_edge_with_diagonal_offsets if col == 2 else top_edge_offsets
+        elif row == dims.rows - 1:
+            offsets = bottom_edge_with_diagonal_offsets if col == 2 else bottom_edge_offsets
+        elif col == 0:
+            offsets = left_edge_with_diagonal_offsets if row == 2 else left_edge_offsets
+        elif col == dims.cols - 1:
+            offsets = right_edge_with_diagonal_offsets if row == 2 else right_edge_offsets
+        else:
+            offsets = middle_offsets if ((pos_x + pos_y) // 100) % 2 == 0 else middle_offsets_no_diagonal
+
+        for offset in offsets:
+            neighbor_index = tiger_index + offset
+            if 0 <= neighbor_index < len(nodes) and nodes[neighbor_index] == goat_pos:
+                jump_index = tiger_index + 2 * offset
+                if 0 <= jump_index < len(nodes):
+                    return nodes[jump_index]
+
+        return None
+
+    def get_tiger_positions(self):
+        return [(x, y) for x in range(5) for y in range(5) if self.board[x][y] == 1]
+
+
+    def is_empty_at_node(self, x, y):
+        return self.board[x][y] == 0

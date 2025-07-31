@@ -4,13 +4,14 @@ from typing import Optional, Tuple
 
 
 class MoveRecorder:
-    def __init__(self):
+    def __init__(self, clear_file=False):
         self.moves = []
         self.filename = "reviews/review_moves.txt"
-        # Overwrite file at start
+        # Only overwrite file if explicitly requested (for new games)
         os.makedirs("reviews", exist_ok=True)
-        with open(self.filename, 'w') as f:
-            pass
+        if clear_file:
+            with open(self.filename, 'w') as f:
+                pass
 
     def record_move(self, from_pos: Optional[Tuple[int, int]], to_pos: Tuple[int, int]):
         from_pixel = from_pos if from_pos else (0, 0)

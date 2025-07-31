@@ -65,22 +65,37 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn, goats_remaining=0):
 def evaluate_board(board, goats_remaining=0):
     tiger_moves = len(generate_valid_moves(board, 0, goats_remaining))
     goat_moves = len(generate_valid_moves(board, 1, goats_remaining))
-    
-    # Base score from captures
+
     score = (board.eaten_goats * 300)
-    
-    # Mobility score
     score += (tiger_moves * 2) - (goat_moves * 3)
-    
-    # Bonus for goats during placement phase
+
+    # Penalize unsafe goat placements (goats near tigers and vulnerable to being jumped)
+    danger_penalty = 0
+    tiger_positions = board.get_tiger_positions()
+    print(f'tiger Position {tiger_positions}')
+
+    for tiger in tiger_positions:
+        surrounding = board.get_surrounding_nodes(tiger)
+        print(f'surrounding Nodes {surrounding}')
+        for neighbor in surrounding:
+            print(f'neighbor {neighbor}')
+            if board.is_goat_at_node(*neighbor):
+                jump_pos = board.get_jump_position(tiger, neighbor)
+                if jump_pos and board.is_empty_at_node(*jump_pos):
+                    # This goat is in danger
+                    danger_penalty += 150
+
+    score -= danger_penalty
+
     if goats_remaining > 0:
         score -= goats_remaining * 50  # Encourage placing goats early
-    
+
     # Bonus for blocking tiger movements
     if tiger_moves == 0 and board.eaten_goats < 5:
         score -= 1000  # Big bonus for goats if tigers are blocked
-    
+
     return score
+
 
 
 def is_terminal(board, goats_remaining=0):

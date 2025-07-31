@@ -1,10 +1,39 @@
 def handle_ai_move(board, turn, goats_remaining, eaten_goats):
-    move = get_best_ai_move(board, turn, goats_remaining)
+    if turn:  # Goat
+        print('Getting moves for goat AI')
+        move = get_best_goat_ai_move(board, turn, goats_remaining)
+    else:  # Tiger
+        print('Getting moves for tiger AI')
+        move = get_best_ai_move(board, turn, goats_remaining)
+
     if move:
-        # Do NOT clone or return a new board
         eaten = apply_move_in_place(board, move, turn)
         return move, not turn, goats_remaining, eaten_goats + eaten
+
     return None, not turn, goats_remaining, eaten_goats
+
+
+def get_best_goat_ai_move(board, turn, goats_remaining):
+    from ai.alpha_beta import alpha_beta
+    best_score = float('-inf')
+    best_move = None
+
+    moves = generate_valid_moves(board, turn, goats_remaining)
+    for move in moves:
+        new_board, eaten = apply_move(board, move, turn)
+        score = alpha_beta(
+            new_board,
+            depth=4,
+            alpha=-999,
+            beta=-999,
+            maximizing=True,  # goat wants to maximize safety
+            turn=1 - turn,
+            goats_remaining=goats_remaining
+        )
+        if score > best_score:
+            best_score = score
+            best_move = move
+    return best_move
 
 
 def get_best_ai_move(board, turn, goats_remaining):
@@ -24,6 +53,37 @@ def get_best_ai_move(board, turn, goats_remaining):
             best_score = score
             best_move = move
     # print(f'Best MOve {best_move}')
+    return best_move
+
+
+def get_best_move_for_analysis(board, turn, goats_remaining):
+    from ai.alpha_beta import alpha_beta
+    best_score = float('-inf') if turn else float('inf')
+    best_move = None
+
+    moves = generate_valid_moves(board, turn, goats_remaining)
+
+    for move in moves:
+        new_board, eaten = apply_move(board, move, turn)
+        score = alpha_beta(
+            new_board,
+            depth=4,
+            alpha=float('-inf'),
+            beta=float('inf'),
+            maximizing=not turn,
+            turn=not turn,
+            goats_remaining=goats_remaining
+        )
+
+        if turn:  # Goat's turn (maximizing)
+            if score > best_score:
+                best_score = score
+                best_move = move
+        else:  # Tiger's turn (minimizing)
+            if score < best_score:
+                best_score = score
+                best_move = move
+
     return best_move
 
 
