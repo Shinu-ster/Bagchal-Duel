@@ -166,16 +166,16 @@ class Board:
 
     def update_board(self, move):
         """Update board after a move (for both player and AI)."""
-        print('Withing update board')
+        # print('Withing update board')
 
         from_pos, to_pos = move
-        print(f'from pos {from_pos}')
-        print(f'to pos {to_pos}')
+        # print(f'from pos {from_pos}')
+        # print(f'to pos {to_pos}')
         x1, y1 = from_pos
         x2, y2 = to_pos
 
-        print(f'From pos value {self.board[x1][y1]}')
-        print(f'to pos value {self.board[x2][y2]}')
+        # print(f'From pos value {self.board[x1][y1]}')
+        # print(f'to pos value {self.board[x2][y2]}')
 
         # Move piece
         self.board[x2][y2] = self.board[x1][y1]
@@ -492,26 +492,33 @@ class Board:
         return None
     
 
-    def get_jump_position(self,tiger_pos, goat_pos):
-        from collections import namedtuple
-        BoardDimensions = namedtuple("BoardDimensions", ["rows", "cols"])
-        dims = BoardDimensions(rows=5, cols=5)
-        
-        def calculate_nodes():
-            return [(i, j) for i in range(dims.rows) for j in range(dims.cols)]
-        
-        nodes = calculate_nodes()
-        
-        if tiger_pos not in nodes or goat_pos not in nodes:
-            return None
+    def get_jump_position(self,tiger_at_index, goat_pos):
+        nodes = self.calculate_nodes()
+
+        tiger_pos = self.index_to_single_node(*tiger_at_index)
+        # print('Tiger Pos ',tiger_pos)
+        # print('Goat Pos ',goat_pos)
 
         tiger_index = nodes.index(tiger_pos)
         goat_index = nodes.index(goat_pos)
-        index_diff = goat_index - tiger_index
 
-        pos_y, pos_x = tiger_pos
-        row = tiger_index // dims.cols
-        col = tiger_index % dims.cols
+        pos_y,pos_x = tiger_pos
+        num_rows = 5
+        num_columns = 5 
+        index = tiger_index
+        row = index // num_columns
+        col = index % num_columns
+        
+        if tiger_pos not in nodes or goat_pos not in nodes:
+            print('Reached Here')
+            return None
+
+        # tiger_index = nodes.index(tiger_pos)
+        # goat_index = nodes.index(goat_pos)
+        # index_diff = goat_index - tiger_index
+
+        
+
 
         # Offset sets
         middle_offsets = [-5, -4, +1, +6, +5, +4, -1, -6]
@@ -529,31 +536,68 @@ class Board:
         right_edge_with_diagonal_offsets = [-1, -5, -6, +4, +5]
         top_edge_with_diagonal_offsets = [+1, -1, +4, +5, +6]
 
-        # Choose offsets based on board position
+               # Assign offsets based on location
         if row == 0 and col == 0:
             offsets = top_left_corner_offsets
-        elif row == 0 and col == dims.cols - 1:
+            # print(f'offset was top left corner')
+        elif row == 0 and col == num_columns - 1:
+            # print(f'offset was top right corner')
             offsets = top_right_corner_offsets
-        elif row == dims.rows - 1 and col == 0:
+        elif row == num_rows - 1 and col == 0:
+            # print(f'offset was bottom left corner')
             offsets = bottom_left_corner_offsets
-        elif row == dims.rows - 1 and col == dims.cols - 1:
+        elif row == num_rows - 1 and col == num_columns - 1:
+            # print(f'offset was bottom right corner')
             offsets = bottom_right_corner_offsets
         elif row == 0:
-            offsets = top_edge_with_diagonal_offsets if col == 2 else top_edge_offsets
-        elif row == dims.rows - 1:
-            offsets = bottom_edge_with_diagonal_offsets if col == 2 else bottom_edge_offsets
+            # print(f'Printing col for top edge {col}')
+            if col == 2:
+                offsets = top_edge_with_diagonal_offsets
+            else:
+                offsets = top_edge_offsets
+
+            # print(f'offset is top edgeg')
+
+        elif row == num_rows - 1:
+            # print(f'Printing col for bottom edge {col}')
+            if col == 2:
+                offsets = bottom_edge_with_diagonal_offsets
+            else:
+                offsets = bottom_edge_offsets
+
+            # print(f'offset is bottom edgeg')
         elif col == 0:
-            offsets = left_edge_with_diagonal_offsets if row == 2 else left_edge_offsets
-        elif col == dims.cols - 1:
-            offsets = right_edge_with_diagonal_offsets if row == 2 else right_edge_offsets
+            # print(f'Printing col for left edge {col}')
+            if row == 2:
+                offsets = left_edge_with_diagonal_offsets
+            else:
+                offsets = left_edge_offsets
+
+            # print(f'offset is left edgeg')
+        elif col == num_columns - 1:
+            # print(f'Printing col for right edge {col}')
+            if row == 2:
+                offsets = right_edge_with_diagonal_offsets
+            else:
+                offsets = right_edge_offsets
         else:
-            offsets = middle_offsets if ((pos_x + pos_y) // 100) % 2 == 0 else middle_offsets_no_diagonal
+            # Middle node - choose diagonal or no-diagonal based on pattern
+            if ((pos_x + pos_y) // 100) % 2 == 0:  # Note: this still uses swapped values!
+
+                offsets = middle_offsets
+                # print('Offset middle offset')
+            else:
+                # print('offset is middle with no diagonal')
+                offsets = middle_offsets_no_diagonal
+
 
         for offset in offsets:
             neighbor_index = tiger_index + offset
-            if 0 <= neighbor_index < len(nodes) and nodes[neighbor_index] == goat_pos:
+            # print(f'Node {neighbor_index} Goat {goat_index}')
+            if 0 <= neighbor_index < len(nodes) and neighbor_index == goat_index:
                 jump_index = tiger_index + 2 * offset
                 if 0 <= jump_index < len(nodes):
+                    
                     return nodes[jump_index]
 
         return None
@@ -562,5 +606,7 @@ class Board:
         return [(x, y) for x in range(5) for y in range(5) if self.board[x][y] == 1]
 
 
-    def is_empty_at_node(self, x, y):
+    def is_empty_at_node(self, node):
+        index = self.single_node_to_index(node)
+        x, y = index
         return self.board[x][y] == 0

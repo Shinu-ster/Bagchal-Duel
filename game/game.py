@@ -353,14 +353,14 @@ class Game:
                                 eaten_goats = self.move.eaten_goats
                                 move, self.turn, updated_goats_remaining, updated_eaten_goats = self.handle_ai_move(
                                     self.board, self.turn, goats_remaining, eaten_goats)
-                                print(f'Turn of Tiger is False {self.turn}')
+                                # print(f'Turn of Tiger is False {self.turn}')
                                 self.move = Move(self.board)
                                 self.move.goats_remaining = updated_goats_remaining
                                 self.move.eaten_goats = updated_eaten_goats
 
                             if self.turn == False:
-                                print('This is running')
-                                print(f'Turn of Tiger is False {self.turn}')
+                                # print('This is running')
+                                # print(f'Turn of Tiger is False {self.turn}')
                                 print(f'Returns board is {self.board}')
                                 winner = self.move.check_game_over()
                                 if winner:

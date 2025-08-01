@@ -64,17 +64,17 @@ def main_menu(screen):
         title = render_text_with_border(
             FONT, "Baghchal Duel", constant.WHITE, (26, 26, 25), border_width=3)
         play_text = FONT.render("Play", True, constant.WHITE)
-        rules_text = FONT.render("Rules", True, constant.WHITE)
-        review_text = FONT.render("Review Games", True, constant.WHITE)
+        # rules_text = FONT.render("Rules", True, constant.WHITE)
+        # review_text = FONT.render("Review Games", True, constant.WHITE)
         quit_text = FONT.render("Quit", True, constant.WHITE)
 
         screen.blit(title, (constant.WIDTH//2 - title.get_width()//2, 100))
         screen.blit(play_text, (constant.WIDTH//2 -
-                    play_text.get_width()//2, 250))
-        screen.blit(rules_text, (constant.WIDTH//2 -
-                    rules_text.get_width()//2, 350))
-        screen.blit(review_text, (constant.WIDTH//2 -
-                    review_text.get_width()//2, 450))
+                    play_text.get_width()//2, 350))
+        # screen.blit(rules_text, (constant.WIDTH//2 -
+        #             rules_text.get_width()//2, 350))
+        # screen.blit(review_text, (constant.WIDTH//2 -
+        #             review_text.get_width()//2, 450))
         screen.blit(quit_text, (constant.WIDTH//2 -
                     quit_text.get_width()//2, 550))
 
@@ -86,7 +86,7 @@ def main_menu(screen):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if 250 <= y <= 300:
+                if 250 <= y <= 400:
                     return "play"
                 if 350 <= y <= 400:
                     return "rules"

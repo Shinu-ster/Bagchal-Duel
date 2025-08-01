@@ -1,6 +1,6 @@
 # from ai.helpers import evaluate_board, generate_valid_moves, apply_move, is_terminal
 # from game.move import Move
-from ai.helpers import generate_valid_moves,apply_move
+from ai.helpers import generate_valid_moves, apply_move
 
 # def alpha_beta(board, depth, alpha, beta, maximizing_player, turn, move_obj,goats_remaining):
 #     if depth == 0 or is_terminal(board, move_obj):
@@ -42,9 +42,11 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn, goats_remaining=0):
     if maximizing:
         max_eval = float('-inf')
         for move in moves:
-            new_board, eaten = apply_move(board, move, turn)
+            new_board, eaten, updated_goats_remaining = apply_move(
+                board, move, turn, goats_remaining)
             # print('Calling alpha beta')
-            eval = alpha_beta(new_board, depth - 1, alpha, beta, False, 1 - turn, goats_remaining)
+            eval = alpha_beta(new_board, depth - 1, alpha, beta, False,
+                              1 - turn, goats_remaining = updated_goats_remaining)
             max_eval = max(max_eval, eval)
             alpha = max(alpha, eval)
             if beta <= alpha:
@@ -53,8 +55,9 @@ def alpha_beta(board, depth, alpha, beta, maximizing, turn, goats_remaining=0):
     else:
         min_eval = float('inf')
         for move in moves:
-            new_board, eaten = apply_move(board, move, turn)
-            eval = alpha_beta(new_board, depth - 1, alpha, beta, True, 1 - turn, goats_remaining)
+            new_board, eaten, updated_goats_remaining = apply_move(board, move, turn, goats_remaining)
+            eval = alpha_beta(new_board, depth - 1, alpha,
+                              beta, True, 1 - turn, goats_remaining = updated_goats_remaining)
             min_eval = min(min_eval, eval)
             beta = min(beta, eval)
             if beta <= alpha:
@@ -72,18 +75,28 @@ def evaluate_board(board, goats_remaining=0):
     # Penalize unsafe goat placements (goats near tigers and vulnerable to being jumped)
     danger_penalty = 0
     tiger_positions = board.get_tiger_positions()
-    print(f'tiger Position {tiger_positions}')
+    # print(f'tiger Position {tiger_positions}')
 
     for tiger in tiger_positions:
-        surrounding = board.get_surrounding_nodes(tiger)
-        print(f'surrounding Nodes {surrounding}')
+        # print('Tiger Position ', tiger)
+        # print(f'Converting index to node {board.index_to_single_node(*tiger)}')
+        tiger_at_node = board.index_to_single_node(*tiger)
+        surrounding = board.get_surrounding_nodes(tiger_at_node)
+        # print(f'surrounding Nodes {surrounding}')
         for neighbor in surrounding:
-            print(f'neighbor {neighbor}')
+            # print(f'neighbor {neighbor}')
             if board.is_goat_at_node(*neighbor):
                 jump_pos = board.get_jump_position(tiger, neighbor)
-                if jump_pos and board.is_empty_at_node(*jump_pos):
+                # print('---------------')
+                # print('Tiger is at Node ', {tiger})
+                # print('Goat is at Node ', {neighbor})
+                # print(f'Returned Jumped Position {jump_pos}')
+                # print('---------------')
+                if jump_pos and board.is_empty_at_node(jump_pos):
                     # This goat is in danger
                     danger_penalty += 150
+                else:
+                    danger_penalty += 50
 
     score -= danger_penalty
 
@@ -97,18 +110,17 @@ def evaluate_board(board, goats_remaining=0):
     return score
 
 
-
 def is_terminal(board, goats_remaining=0):
     # Game ends if tigers eat 5 goats
     if board.eaten_goats >= 5:
         return True
-    
+
     # Game ends if tigers have no moves (goats win)
     if len(generate_valid_moves(board, 0, goats_remaining)) == 0:
         return True
-    
+
     # Game ends if goats have no moves and no goats left to place
     if goats_remaining == 0 and len(generate_valid_moves(board, 1, goats_remaining)) == 0:
         return True
-    
+
     return False
