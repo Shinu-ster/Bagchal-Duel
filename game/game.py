@@ -327,8 +327,8 @@ class Game:
                                                     # Trigger AI if it's now AI's turn
                                                     if self.player_side != 'tiger':
 
-                                                        print(
-                                                            f'Passing turn {self.turn}')
+                                                        # print(
+                                                        #     f'Passing turn {self.turn}')
                                                         goats_remaining = self.move.goats_remaining
                                                         eaten_goats = self.move.eaten_goats
 

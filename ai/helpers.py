@@ -1,10 +1,10 @@
 def handle_ai_move(board, turn, goats_remaining, eaten_goats):
     if turn:  # Goat
-        print('Getting moves for goat AI')
+        # print('Getting moves for goat AI')
         move,updated_goats_remaining = get_best_goat_ai_move(board, turn, goats_remaining)
     else:  # Tiger
-        print('Getting moves for tiger AI')
-        move = get_best_ai_move(board, turn, goats_remaining)
+        # print('Getting moves for tiger AI')
+        move,updated_goats_remaining = get_best_ai_move(board, turn, goats_remaining)
 
     if move:
         eaten = apply_move_in_place(board, move, turn)
@@ -24,7 +24,7 @@ def get_best_goat_ai_move(board, turn, goats_remaining):
             board, move, turn, goats_remaining)
         score = alpha_beta(
             new_board,
-            depth=6,
+            depth=4,
             alpha=-999,
             beta=-999,
             maximizing=True,  # goat wants to maximize safety
@@ -34,7 +34,8 @@ def get_best_goat_ai_move(board, turn, goats_remaining):
         if score > best_score:
             best_score = score
             best_move = move
-    return best_move, updated_goats_remaining
+            best_goats_remaining = updated_goats_remaining
+    return best_move, best_goats_remaining
 
 
 def get_best_ai_move(board, turn, goats_remaining):
@@ -46,15 +47,16 @@ def get_best_ai_move(board, turn, goats_remaining):
     moves = generate_valid_moves(board, turn, goats_remaining)
     print('After getting moves')
     for move in moves:
-        new_board, eaten = apply_move(board, move, turn)
+        new_board, eaten, updated_goats_remaining = apply_move(board, move, turn,goats_remaining)
         score = alpha_beta(new_board, depth=4, alpha=-999,
-                           beta=-999, maximizing=False, turn=1-turn, goats_remaining=goats_remaining)
+                           beta=-999, maximizing=False, turn=1-turn, goats_remaining=updated_goats_remaining)
 
         if score > best_score:
             best_score = score
             best_move = move
-    # print(f'Best MOve {best_move}')
-    return best_move
+            best_goats_remaining = updated_goats_remaining
+    print(f'Best MOve {best_move}')
+    return best_move, best_goats_remaining
 
 
 def get_best_move_for_analysis(board, turn, goats_remaining):

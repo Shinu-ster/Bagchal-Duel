@@ -86,7 +86,7 @@ def evaluate_board(board, goats_remaining=0):
         for neighbor in surrounding:
             # print(f'neighbor {neighbor}')
             if board.is_goat_at_node(*neighbor):
-                jump_pos = board.get_jump_position(tiger, neighbor)
+                jump_pos = board.get_jump_position_ai(tiger, neighbor)
                 # print('---------------')
                 # print('Tiger is at Node ', {tiger})
                 # print('Goat is at Node ', {neighbor})
@@ -94,9 +94,8 @@ def evaluate_board(board, goats_remaining=0):
                 # print('---------------')
                 if jump_pos and board.is_empty_at_node(jump_pos):
                     # This goat is in danger
-                    danger_penalty += 150
-                else:
-                    danger_penalty += 50
+                    danger_penalty += 450
+                
 
     score -= danger_penalty
 

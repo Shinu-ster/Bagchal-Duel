@@ -274,10 +274,32 @@ class Move:
         for tiger_pos in tiger_positions:
             movable = False
             neighbors = self.board.get_surrounding_nodes(tiger_pos)
+
+            # Collect goat neighbors
+            goat_neighbors = []
             for neighbor in neighbors:
                 if self.board.is_valid_tiger_move(tiger_pos, neighbor):
                     movable = True
-                    break
+                elif self.board.get_piece_at(*neighbor) == 2:  # Goat is here
+                    goat_neighbors.append(neighbor)
+
+            # OPTIONAL: check if tiger can jump over any goat neighbor
+            if goat_neighbors:
+                if self.check_tiger_can_jump(tiger_pos, goat_neighbors):
+                    movable = True
+
             if not movable:
                 trapped += 1
+
         return trapped
+
+    def check_tiger_can_jump(self, tiger_pos, goat_neighbors):
+        for goat_pos in goat_neighbors:
+            jump_pos = self.board.get_jump_position(tiger_pos, goat_pos)
+            # print(f'JUmp_pos {jump_pos}')
+            if jump_pos and self.board.is_empty_at_node(jump_pos):
+                # print(
+                #     f'Tiger at {tiger_pos} can jump over goat at {goat_pos} to {jump_pos}')
+                return True  # A jump is possible
+
+        return False  # No jump available
